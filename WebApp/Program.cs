@@ -1,5 +1,7 @@
 ﻿using HttpServerCore;
 using Serilog;
+using Serilog.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace WebApp
 {
@@ -9,9 +11,11 @@ namespace WebApp
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .CreateLogger();            
+                .CreateLogger();
 
-            using HttpServer server = new(8080, Log.Logger);
+            using ILoggerFactory loggerFactory = new SerilogLoggerFactory();
+
+            using HttpServer server = new(8080, loggerFactory);
             {
                 Console.CancelKeyPress += (sender, e) =>
                 {

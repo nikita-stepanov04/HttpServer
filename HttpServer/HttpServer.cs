@@ -1,5 +1,4 @@
-﻿using Serilog;
-using System.Collections.Concurrent;
+﻿using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
 
@@ -8,13 +7,15 @@ namespace HttpServerCore
     public class HttpServer : IDisposable
     {
         private readonly TcpListener _tcpListener;
-        private readonly ConcurrentBag<HttpServerClient> _httpServerClients = new();
+        private readonly LinkedList<HttpServerClient> _httpServerClients = new();
+        private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
 
-        public HttpServer(int port, ILogger logger)
+        public HttpServer(int port, ILoggerFactory loggerFactory)
         {
             _tcpListener = new TcpListener(IPAddress.Any, port);
-            _logger = logger;
+            _logger = loggerFactory.CreateLogger<HttpServer>();
+            _loggerFactory = loggerFactory;
         }
 
         public async Task StartAsync()
@@ -22,13 +23,28 @@ namespace HttpServerCore
             try
             {
                 _tcpListener.Start();
-                _logger.Information("Server started with address: {p}", _tcpListener.LocalEndpoint);
+                _logger.LogInformation("Server started with address: {p}", _tcpListener.LocalEndpoint);
+
+                ILogger clientLogger = _loggerFactory.CreateLogger<HttpServerClient>();
 
                 while(true)
                 {
                     TcpClient client = await _tcpListener.AcceptTcpClientAsync();
-                    _logger.Information("Connection: {p1} > {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
-                    _httpServerClients.Add(new HttpServerClient());
+                    _logger.LogInformation("Connection: {p1} > {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
+
+                    lock(_httpServerClients)
+                    {
+                        _httpServerClients.AddLast(new HttpServerClient(client, clientLogger,
+                            disposeCallback: httpClient =>
+                            {
+                                lock(_httpServerClients)
+                                {
+                                    _httpServerClients.Remove(httpClient);
+                                }
+                                httpClient.Dispose();
+                            }
+                        ));
+                    }
                 }
             }
             catch (Exception e)
@@ -39,7 +55,7 @@ namespace HttpServerCore
                     ObjectDisposedException => "Server is already stopped, incoming connections are blocked",
                     _ => $"An unhandled exception occurred, message: {e.Message}"
                 };
-                _logger.Information(message);
+                _logger.LogInformation(message);
             }
         }
 
@@ -61,14 +77,17 @@ namespace HttpServerCore
 
             if (disposing)
             {
-                _logger.Information("Stopping connected clients");
-                foreach (var client in _httpServerClients)
+                _logger.LogInformation("Stopping connected clients");
+                lock (_httpServerClients)
                 {
-                    client.Dispose();
-                }
-                _logger.Information("Connected clients are stopped");
+                    foreach (var client in _httpServerClients)
+                    {
+                        client.Dispose();
+                    }
+                }                
+                _logger.LogInformation("Connected clients are stopped");
             }
-            _logger.Information("Server stopped successfully");
+            _logger.LogInformation("Server stopped successfully");
         }
 
         ~HttpServer() => Dispose(false);
