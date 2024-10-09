@@ -1,12 +1,13 @@
-﻿using System.Net;
-
-namespace HttpServerCore
+﻿namespace HttpServerCore
 {
-    public class HttpResponse
+    public class HttpResponse : IDisposable
     {
-        public string? Protocol { get; set; }
-        public HttpStatusCode StatusCode { get; set; }
+        public string Protocol { get; set; } = "HTTP/1.1";
+        public StatusCodes StatusCode { get; set; }
+        public string? ReasonPhrase => Enum.GetName(StatusCode);
         public HeaderDictionary Headers { get; set; } = new();
-        public Stream? Content { get; set; }
+        public Stream Content { get; set; } = new MemoryStream();
+
+        public void Dispose() => Content?.Dispose();
     }
 }

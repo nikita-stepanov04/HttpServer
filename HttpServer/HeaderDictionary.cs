@@ -17,5 +17,15 @@
 
             return Convert.ToInt64(value);
         }
+
+        public void Set(string header, string value)
+        {
+            bool containsHeader = ContainsKey(header);
+
+            if (containsHeader)            
+                this[header] = value;            
+            else            
+                Add(header, value);            
+        }
     }
 }

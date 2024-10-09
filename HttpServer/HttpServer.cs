@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
+using HttpServerCore.Handlers;
 
 namespace HttpServerCore
 {
@@ -8,12 +9,17 @@ namespace HttpServerCore
     {
         private readonly TcpListener _tcpListener;
         private readonly LinkedList<HttpServerClient> _httpServerClients = new();
+        private readonly IEndpointProvider _endpointProvider;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
 
-        public HttpServer(int port, ILoggerFactory loggerFactory)
+        public HttpServer(
+            int port,
+            ILoggerFactory loggerFactory,
+            IEndpointProvider endpointProvider)
         {
             _tcpListener = new TcpListener(IPAddress.Any, port);
+            _endpointProvider = endpointProvider;
             _logger = loggerFactory.CreateLogger<HttpServer>();
             _loggerFactory = loggerFactory;
         }
@@ -30,11 +36,12 @@ namespace HttpServerCore
                 while(true)
                 {
                     TcpClient client = await _tcpListener.AcceptTcpClientAsync();
-                    _logger.LogInformation("Connection: {p1} > {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
+                    _logger.LogInformation("Connection: {p1} => {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
 
                     lock(_httpServerClients)
                     {
                         _httpServerClients.AddLast(new HttpServerClient(client, clientLogger,
+                            _endpointProvider, _loggerFactory,
                             disposeCallback: httpClient =>
                             {
                                 lock(_httpServerClients)

@@ -1,11 +1,14 @@
 ﻿namespace HttpServerCore
 {
-    public class HttpRequest
+    public class HttpRequest : IDisposable
     {
         public string? Method { get; set; }
-        public string? Uri { get; set; }
+        public string Uri { get; set; } = "/";
         public string? Protocol { get; set; }
+        public QueryDictionary Query { get; set; } = new();
         public HeaderDictionary Headers { get; set; } = new();
         public Stream? Content { get; set; }
+
+        public void Dispose() => Content?.Dispose();
     }
 }
