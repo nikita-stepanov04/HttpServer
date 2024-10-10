@@ -8,7 +8,7 @@ namespace HttpServerCore
     public class HttpServer : IDisposable
     {
         private readonly TcpListener _tcpListener;
-        private readonly LinkedList<HttpServerClient> _httpServerClients = new();
+        private readonly List<HttpServerClient> _httpServerClients = new();
         private readonly IEndpointProvider _endpointProvider;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
@@ -40,7 +40,7 @@ namespace HttpServerCore
 
                     lock(_httpServerClients)
                     {
-                        _httpServerClients.AddLast(new HttpServerClient(client, clientLogger,
+                        _httpServerClients.Add(new HttpServerClient(client, clientLogger,
                             _endpointProvider, _loggerFactory,
                             disposeCallback: httpClient =>
                             {

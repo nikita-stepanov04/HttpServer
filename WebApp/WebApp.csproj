@@ -14,7 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="wwwroot\css\style.css" />
     <None Remove="wwwroot\errors\404.html" />
+    <None Remove="wwwroot\js\index.js" />
   </ItemGroup>
 
   <ItemGroup>

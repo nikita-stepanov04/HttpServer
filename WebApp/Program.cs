@@ -3,6 +3,8 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using Microsoft.Extensions.Logging;
 using HttpServerCore.Handlers;
+using System.Text;
+using Microsoft.Extensions.Primitives;
 
 namespace WebApp
 {
@@ -24,13 +26,33 @@ namespace WebApp
             endpointProvider.MapGet("/test", async (request, response) =>
             {
                 using var sw = new StreamWriter(response.Content, leaveOpen: true);
-                string result = "Hello, World!";
+
+                StringBuilder builder = new("Query params: ");
+                foreach(var param in request.QueryParams)
+                {
+                    builder.Append($"{param.Key}: {param.Value}, ");
+                }
+                string result = builder.ToString();
 
                 response.Headers.Set("Content-Type", "text/plain");
-                response.Headers.Set("Content-Length", result.Length.ToString());
                 await sw.WriteAsync(result);
                 await sw.FlushAsync();
-                response.Content.Position = 0;
+            });
+
+            endpointProvider.MapPost("/fileLength", async (request, response) =>
+            {
+                if (request.Content != null)
+                {
+                    long count = request.Content.Length;
+                    using var sw = new StreamWriter(response.Content, leaveOpen: true);
+
+                    string result = $"File length is: {count} bytes";
+
+                    response.Headers.Set("Content-Type", "text/plain");
+
+                    await sw.WriteLineAsync(result);
+                    await sw.FlushAsync();
+                }
             });
 
             using HttpServer server = new(8080, loggerFactory, endpointProvider);

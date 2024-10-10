@@ -100,9 +100,24 @@ namespace HttpServerCore
 
             if (lineTokens.Length != 3)
                 return (request, StatusCodes.BadRequest);
+            request.Method = lineTokens[0];
 
-            request.Method = lineTokens[0];            
-            request.Uri = lineTokens[1];            
+            // Check Uri
+            lineTokens[1] = Uri.UnescapeDataString(lineTokens[1]);
+            if (lineTokens[1].Contains(".."))
+                return (request, StatusCodes.BadRequest);
+
+            // Parse uri and query params
+            string[] uriTokens = lineTokens[1].Split('?', '&');
+            request.Uri = uriTokens[0];
+            for (int i = 1; i < uriTokens.Length; i++)
+            {
+                string[] queryTokens = uriTokens[i].Split('=', 2);
+                if (queryTokens.Length == 2)
+                {
+                    request.QueryParams.Add(queryTokens[0], queryTokens[1]);
+                }
+            }
 
             // Check protocol version
             string[] protocolTokens = lineTokens[2].Split("/", 2);
@@ -124,11 +139,7 @@ namespace HttpServerCore
                 {
                     request.Headers.Add(headerTokens[0], headerTokens[1]);
                 }
-            }
-
-            //Check Uri
-            if (request.Uri.Contains(".."))
-                return (request, StatusCodes.BadRequest);
+            }            
 
             // Parsing content
             long length = request.Headers.GetDigit("Content-Length") ?? 0;
@@ -143,7 +154,12 @@ namespace HttpServerCore
         }
 
         private async Task SendHttpResponse(HttpResponse response)
-        { 
+        {
+            response.Content.Position = 0;
+
+            long contentLength = response.Content.Length;
+            response.Headers.Set("Content-Length", contentLength.ToString());
+
             using (StreamWriter sw = new(_stream, leaveOpen: true))
             {                
                 sw.WriteLine($"{response.Protocol} {(int)response.StatusCode} {response.ReasonPhrase}");
@@ -153,7 +169,8 @@ namespace HttpServerCore
                 }
                 sw.WriteLine();               
             }
-            await response.Content.CopyToAsync(_stream);
+            if (contentLength > 0)
+                await response.Content.CopyToAsync(_stream);
         }
 
         private async Task<string> ReadRequestLineAsync() => await Task.Run(ReadRequestLine);
@@ -171,7 +188,7 @@ namespace HttpServerCore
                     -1 => throw new HttpRequestException(),
                     '\r' when lineState == LineState.None => LineState.CR,
                     '\n' when lineState == LineState.CR => LineState.LF,
-                    '\r' or '\n' => throw new ProtocolViolationException(),
+                    '\r' or '\n' => throw new ProtocolViolationException("Non supported protocol"),
                     _ => LineState.None
                 };
 
