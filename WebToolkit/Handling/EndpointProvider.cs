@@ -1,22 +1,24 @@
-﻿using System.Buffers;
+﻿using HttpServerCore;
+using System.Buffers;
+using System.Collections.Concurrent;
 
-namespace HttpServerCore.Handlers
+namespace WebToolkit.Handling
 {
     public class EndpointProvider : IEndpointProvider
     {
         private string? _wwwrootPath;
         private string? _errorPath;
 
-        private readonly Dictionary<string, RequestDelegate> _getEndpoints = new();
-        private readonly Dictionary<string, RequestDelegate> _postEndpoints = new();
+        private readonly ConcurrentDictionary<string, RequestDelegate> _getEndpoints = new();
+        private readonly ConcurrentDictionary<string, RequestDelegate> _postEndpoints = new();
 
         public void MapStaticPath(string path) => _wwwrootPath = path;
 
         public void MapErrorPath(string path) => _errorPath = path;
 
-        public void MapGet(string path, RequestDelegate endpoint) => _getEndpoints.Add(path, endpoint);
+        public void MapGet(string path, RequestDelegate endpoint) => _getEndpoints.TryAdd(path, endpoint);
 
-        public void MapPost(string path, RequestDelegate endpoint) => _postEndpoints.Add(path, endpoint);        
+        public void MapPost(string path, RequestDelegate endpoint) => _postEndpoints.TryAdd(path, endpoint);
 
         public RequestDelegate? GetGetEndpoint(string path) =>
             _getEndpoints.TryGetValue(path, out var endpoint) ? endpoint : null;
@@ -33,7 +35,7 @@ namespace HttpServerCore.Handlers
             if (path == "/" || path == string.Empty)
                 path = "/index.html";
 
-            string fullPath = $"{basePath}/{path}";            
+            string fullPath = $"{basePath}/{path}";
             if (File.Exists(fullPath))
             {
                 RequestDelegate endpoint = async (request, response) =>

@@ -1,4 +1,6 @@
-﻿namespace HttpServerCore.Handlers
+﻿using HttpServerCore;
+
+namespace WebToolkit.Handling
 {
     public interface IEndpointProvider
     {

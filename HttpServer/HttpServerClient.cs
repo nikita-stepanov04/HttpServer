@@ -1,5 +1,4 @@
-﻿using HttpServerCore.Handlers;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
@@ -12,34 +11,31 @@ namespace HttpServerCore
         private readonly TcpClient _client;
         private readonly NetworkStream _stream;
         private readonly Action<HttpServerClient> _disposeCallback;
+        private readonly IHandler _handler;
         private readonly Task _clientTask;
         private readonly string _remoteEndpoint;
-        private readonly IEndpointProvider _endpointProvider;
         private readonly ILogger _logger;
         private readonly ILoggerFactory _loggerFactory;
 
         public HttpServerClient(
             TcpClient client,
             ILogger logger,
-            IEndpointProvider endpointProvider,
             ILoggerFactory loggerFactory,
+            IHandler handler,
             Action<HttpServerClient> disposeCallback)
         {
             _client = client;
             _stream = client.GetStream();
             _disposeCallback = disposeCallback;
             _logger = logger;
-            _endpointProvider = endpointProvider;
             _loggerFactory = loggerFactory;
             _remoteEndpoint = _client.Client.RemoteEndPoint?.ToString() ?? "";
+            _handler = handler;
             _clientTask = RunTcpReadingLoop();
         }
 
         private async Task RunTcpReadingLoop()
         {
-            ILogger endpointLogger = _loggerFactory.CreateLogger<EndpointExecutor>();
-            EndpointExecutor endpointExecutor = new(_endpointProvider, endpointLogger);
-
             try
             {
                 while (true)
@@ -55,12 +51,9 @@ namespace HttpServerCore
                         {
                             response.StatusCode = code;
                             response.Headers.Set("Connection", "close");
-                            await endpointExecutor.SelectErrorEndpointAndExecuteAsync(request, response);
                         }
                         else
-                        {                            
-                            await endpointExecutor.SelectEndpointAndExecuteAsync(request, response);
-                        }
+                            await _handler.InvokeAsync(request, response);                        
 
                         await SendHttpResponse(response);
 

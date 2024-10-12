@@ -1,10 +1,9 @@
 ﻿using HttpServerCore;
 using Serilog;
 using Serilog.Extensions.Logging;
-using Microsoft.Extensions.Logging;
-using HttpServerCore.Handlers;
+using WebToolkit.Handling;
 using System.Text;
-using Microsoft.Extensions.Primitives;
+using WebToolkit;
 
 namespace WebApp
 {
@@ -12,50 +11,27 @@ namespace WebApp
     {
         static async Task Main(string[] args)
         {
+            string contentPath = AppContext.BaseDirectory + "wwwroot";
+
             Log.Logger = new LoggerConfiguration()                
                 .WriteTo.Console()                    
                 .CreateLogger();
 
-            using ILoggerFactory loggerFactory = new SerilogLoggerFactory();
+            HttpServerBuilder app = new(8080, new SerilogLoggerFactory());            
 
-            IEndpointProvider endpointProvider = new EndpointProvider();
+            app.Use<Middleware1>();
+            app.Use<Middleware2>();
+            app.UseEndpoints();
+            app.UseErrorMiddleware();
 
-            endpointProvider.MapStaticPath(AppContext.BaseDirectory + "wwwroot");
-            endpointProvider.MapErrorPath(AppContext.BaseDirectory + "wwwroot/errors");
+            app.MapStaticPath(contentPath);
+            app.MapErrorPath(contentPath + "/errors");
 
-            endpointProvider.MapGet("/test", async (request, response) =>
-            {
-                using var sw = new StreamWriter(response.Content, leaveOpen: true);
+            app.MapGet("/test", Endpoints.Test);
+            app.MapGet("/error", (rq, rs) => throw new Exception());
+            app.MapPost("/fileLength", Endpoints.FileLength);
 
-                StringBuilder builder = new("Query params: ");
-                foreach(var param in request.QueryParams)
-                {
-                    builder.Append($"{param.Key}: {param.Value}, ");
-                }
-                string result = builder.ToString();
-
-                response.Headers.Set("Content-Type", "text/plain");
-                await sw.WriteAsync(result);
-                await sw.FlushAsync();
-            });
-
-            endpointProvider.MapPost("/fileLength", async (request, response) =>
-            {
-                if (request.Content != null)
-                {
-                    long count = request.Content.Length;
-                    using var sw = new StreamWriter(response.Content, leaveOpen: true);
-
-                    string result = $"File length is: {count} bytes";
-
-                    response.Headers.Set("Content-Type", "text/plain");
-
-                    await sw.WriteLineAsync(result);
-                    await sw.FlushAsync();
-                }
-            });
-
-            using HttpServer server = new(8080, loggerFactory, endpointProvider);
+            using HttpServer server = app.Build();
             {
                 Console.CancelKeyPress += (sender, e) =>
                 {
@@ -64,6 +40,60 @@ namespace WebApp
                 };
                 await server.StartAsync();
             }            
+        }
+    }
+
+    class Middleware1 : IMiddleware
+    {
+        public async Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next)
+        {
+            Console.WriteLine("Middleware 1");
+            await Next();
+            Console.WriteLine("After all");
+        }
+    }
+
+    class Middleware2 : IMiddleware
+    {
+        public async Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next)
+        {
+            Console.WriteLine("Middleware 2");
+            await Next();
+        }
+    }
+
+    static class Endpoints
+    {
+        public static async Task Test(HttpRequest request, HttpResponse response)
+        {
+            using var sw = new StreamWriter(response.Content, leaveOpen: true);
+
+            StringBuilder builder = new("Query params: ");
+            foreach (var param in request.QueryParams)
+            {
+                builder.Append($"{param.Key}: {param.Value}, ");
+            }
+            string result = builder.ToString();
+
+            response.Headers.Set("Content-Type", "text/plain");
+            await sw.WriteAsync(result);
+            await sw.FlushAsync();
+        }
+
+        public static async Task FileLength(HttpRequest request, HttpResponse response)
+        {
+            if (request.Content != null)
+            {
+                long count = request.Content.Length;
+                using var sw = new StreamWriter(response.Content, leaveOpen: true);
+
+                string result = $"File length is: {count} bytes";
+
+                response.Headers.Set("Content-Type", "text/plain");
+
+                await sw.WriteLineAsync(result);
+                await sw.FlushAsync();
+            }
         }
     }
 }
