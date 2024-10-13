@@ -15,12 +15,10 @@ namespace HttpServerCore
         private readonly Task _clientTask;
         private readonly string _remoteEndpoint;
         private readonly ILogger _logger;
-        private readonly ILoggerFactory _loggerFactory;
 
         public HttpServerClient(
             TcpClient client,
             ILogger logger,
-            ILoggerFactory loggerFactory,
             IHandler handler,
             Action<HttpServerClient> disposeCallback)
         {
@@ -28,22 +26,27 @@ namespace HttpServerCore
             _stream = client.GetStream();
             _disposeCallback = disposeCallback;
             _logger = logger;
-            _loggerFactory = loggerFactory;
             _remoteEndpoint = _client.Client.RemoteEndPoint?.ToString() ?? "";
             _handler = handler;
             _clientTask = RunTcpReadingLoop();
         }
 
         private async Task RunTcpReadingLoop()
-        {
+        {            
             try
             {
                 while (true)
                 {
                     (HttpRequest request, StatusCodes code) = await ReceiveHttpRequest();
+                    Guid requestId = Guid.NewGuid();
+
                     using (request)
+                    using (HttpResponse response = new())
+                    using (_logger.BeginRequestScope(requestId))
                     {
-                        using HttpResponse response = new();
+                        request.RequestId = requestId;
+                        response.RequestId = requestId;
+
                         response.Protocol = request.Protocol ?? response.Protocol;
                         response.Headers.Set("Connection", request.Headers.Get("Connection") ?? "close");
 
@@ -53,7 +56,10 @@ namespace HttpServerCore
                             response.Headers.Set("Connection", "close");
                         }
                         else
-                            await _handler.InvokeAsync(request, response);                        
+                        {
+                            _logger.LogInformation("Request {p} was accepted successfully, invoking request handler", requestId);
+                            await _handler.InvokeAsync(request, response);   
+                        }                                                 
 
                         await SendHttpResponse(response);
 
@@ -73,7 +79,7 @@ namespace HttpServerCore
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e.GetType().Name} happened while processing request: {e.Message}");
+                _logger.LogError(e, "Error happened while processing request");
             } 
             finally
             {

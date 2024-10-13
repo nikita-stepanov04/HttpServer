@@ -11,12 +11,14 @@ namespace HttpServerCore
         private readonly IHandler _handler;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
+        private readonly int _port;
 
         public HttpServer(
             int port,
             ILoggerFactory loggerFactory,
             IHandler handler)
         {
+            _port = port;
             _tcpListener = new TcpListener(IPAddress.Any, port);
             _logger = loggerFactory.CreateLogger<HttpServer>();
             _loggerFactory = loggerFactory;
@@ -25,43 +27,51 @@ namespace HttpServerCore
 
         public async Task StartAsync()
         {
-            try
+            using (_logger.BeginServerScope(_port))
             {
-                _tcpListener.Start();
-                _logger.LogInformation("Server started with address: {p}", _tcpListener.LocalEndpoint);
-
-                ILogger clientLogger = _loggerFactory.CreateLogger<HttpServerClient>();
-
-                while(true)
+                try
                 {
-                    TcpClient client = await _tcpListener.AcceptTcpClientAsync();
-                    _logger.LogInformation("Connection: {p1} => {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
+                    _tcpListener.Start();
+                    _logger.LogInformation("Server started with address: {p}", _tcpListener.LocalEndpoint);
 
-                    lock(_httpServerClients)
+                    ILogger clientLogger = _loggerFactory.CreateLogger<HttpServerClient>();
+
+                    while (true)
                     {
-                        _httpServerClients.Add(new HttpServerClient(client, clientLogger,
-                            _loggerFactory, _handler,
-                            disposeCallback: httpClient =>
+                        TcpClient client = await _tcpListener.AcceptTcpClientAsync();
+
+                        Guid connectionId = Guid.NewGuid();
+                        using (clientLogger.BeginConnectionScope(connectionId))
+                        {
+                            _logger.LogInformation("Connection: {p1} => {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
+
+                            lock (_httpServerClients)
                             {
-                                lock(_httpServerClients)
-                                {
-                                    _httpServerClients.Remove(httpClient);
-                                }
-                                httpClient.Dispose();
+                                _httpServerClients.Add(new HttpServerClient(client, clientLogger, _handler,
+                                    disposeCallback: httpClient =>
+                                    {
+                                        lock (_httpServerClients)
+                                        {
+                                            _httpServerClients.Remove(httpClient);
+                                        }
+                                        httpClient.Dispose();
+                                    }
+                                ));
                             }
-                        ));
+                        }
+
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                string message = e switch
+                catch (Exception e)
                 {
-                    SocketException => "Socket connection closed, stopping server",
-                    ObjectDisposedException => "Server is already stopped, incoming connections are blocked",
-                    _ => $"An unhandled exception occurred, message: {e.Message}"
-                };
-                _logger.LogInformation(message);
+                    string message = e switch
+                    {
+                        SocketException => "Socket connection closed, stopping server",
+                        ObjectDisposedException => "Server is already stopped, incoming connections are blocked",
+                        _ => $"An unhandled exception occurred, message: {e.Message}"
+                    };
+                    _logger.LogInformation(message);
+                }
             }
         }
 

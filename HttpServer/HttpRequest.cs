@@ -2,6 +2,8 @@
 {
     public class HttpRequest : IDisposable
     {
+        public Guid RequestId { get; set; }
+
         public string? Method { get; set; }
         public string Uri { get; set; } = "/";
         public string? Protocol { get; set; }

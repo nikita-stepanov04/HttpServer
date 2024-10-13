@@ -44,7 +44,7 @@ namespace WebToolkit.Middleware
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"Failed to execute endpoint due to endpoint exception: {e.Message}");
+                    _logger.LogError(e, "Failed to execute endpoint due to endpoint exception");                    
                     response.StatusCode = StatusCodes.InternalServerError;
                 }
             }

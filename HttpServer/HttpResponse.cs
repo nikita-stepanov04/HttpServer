@@ -2,6 +2,8 @@
 {
     public class HttpResponse : IDisposable
     {
+        public Guid RequestId { get; set; }
+
         public string Protocol { get; set; } = "HTTP/1.1";
 
         public StatusCodes StatusCode { get; set; } = StatusCodes.NoContent;

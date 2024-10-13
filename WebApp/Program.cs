@@ -4,6 +4,10 @@ using Serilog.Extensions.Logging;
 using WebToolkit.Handling;
 using System.Text;
 using WebToolkit;
+using Npgsql;
+using NpgsqlTypes;
+using Serilog.Sinks.PostgreSQL;
+using System.Runtime.CompilerServices;
 
 namespace WebApp
 {
@@ -13,8 +17,26 @@ namespace WebApp
         {
             string contentPath = AppContext.BaseDirectory + "wwwroot";
 
-            Log.Logger = new LoggerConfiguration()                
-                .WriteTo.Console()                    
+            string connectionString = "Host=localhost;Database=HttpServer;Username=postgres;Password=Password123$";
+            
+            IDictionary<string, ColumnWriterBase> columnWriters = new Dictionary<string, ColumnWriterBase>
+            {
+                {"message", new RenderedMessageColumnWriter(NpgsqlDbType.Text) },
+                {"level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
+                {"timestamp", new TimestampColumnWriter(NpgsqlDbType.Timestamp) },
+                {"exception", new ExceptionColumnWriter(NpgsqlDbType.Text) },
+                {"source_context", new SinglePropertyColumnWriter("SourceContext", PropertyWriteMethod.ToString, NpgsqlDbType.Text) },
+                {"scope", new SinglePropertyColumnWriter("Scope", PropertyWriteMethod.Json, NpgsqlDbType.Jsonb) }
+            };
+
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.PostgreSQL(
+                    connectionString: connectionString,
+                    tableName: "ServerLogs",
+                    columnOptions: columnWriters,
+                    needAutoCreateTable: true)
                 .CreateLogger();
 
             HttpServerBuilder app = new(8080, new SerilogLoggerFactory());            
