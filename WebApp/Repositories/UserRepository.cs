@@ -6,10 +6,10 @@ namespace WebApp.Repositories
     {
         private readonly DataContext _dataContext;
 
-        public async IAsyncEnumerable<User> GetUsersByFilterAsync(Func<User, bool> filter)
-        {
-            throw new NotImplementedException();
-        }
+        //public async IAsyncEnumerable<User> GetUsersByFilterAsync(Func<User, bool> filter)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<User> GetByIdAsync(Guid id)
         {

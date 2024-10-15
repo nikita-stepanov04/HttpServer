@@ -11,13 +11,15 @@ namespace WebToolkit
         private readonly ILoggerFactory _loggerFactory;
         private readonly IMiddlewareProvider _middleware;
         private readonly IEndpointProvider _endpoints;
+        private readonly ProcessingMode _mode;
 
-        public HttpServerBuilder(int port, ILoggerFactory loggerFactory)
+        public HttpServerBuilder(int port, ILoggerFactory loggerFactory, ProcessingMode mode)
         {
             _port = port;
             _loggerFactory = loggerFactory;
             _middleware = new MiddlewareProvider();
             _endpoints = new EndpointProvider();
+            _mode = mode;
         }
 
         public void Use(IMiddleware middleware) => _middleware.Use(middleware);
@@ -41,7 +43,7 @@ namespace WebToolkit
 
         public HttpServer Build()
         {
-            return new(_port, _loggerFactory, _middleware);
+            return new(_port, _loggerFactory, _middleware, _mode);
         }
     }
 }

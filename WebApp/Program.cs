@@ -4,10 +4,8 @@ using Serilog.Extensions.Logging;
 using WebToolkit.Handling;
 using System.Text;
 using WebToolkit;
-using Npgsql;
 using NpgsqlTypes;
 using Serilog.Sinks.PostgreSQL;
-using System.Runtime.CompilerServices;
 
 namespace WebApp
 {
@@ -39,7 +37,7 @@ namespace WebApp
                     needAutoCreateTable: true)
                 .CreateLogger();
 
-            HttpServerBuilder app = new(8080, new SerilogLoggerFactory());            
+            HttpServerBuilder app = new(8080, new SerilogLoggerFactory(), ProcessingMode.MultiThread);            
 
             app.Use<Middleware1>();
             app.Use<Middleware2>();

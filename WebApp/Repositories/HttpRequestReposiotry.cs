@@ -12,15 +12,15 @@ namespace WebApp.Repositories
             throw new NotImplementedException();
         }
 
-        public async IAsyncEnumerable<HttpRequest> GetByFilterAsync(Func<HttpRequest, bool> filter)
-        {
-            throw new NotImplementedException();
-        }
+        //public async IAsyncEnumerable<HttpRequest> GetByFilterAsync(Func<HttpRequest, bool> filter)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public async IAsyncEnumerable<HttpRequest> GetWithNoContentByFilterAsync(Func<HttpRequest, bool> filter)
-        {
-            throw new NotImplementedException();
-        }
+        //public async IAsyncEnumerable<HttpRequest> GetWithNoContentByFilterAsync(Func<HttpRequest, bool> filter)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<bool> DeleteByFilterAsync(Func<HttpRequest, bool> filter)
         {

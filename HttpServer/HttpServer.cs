@@ -12,17 +12,20 @@ namespace HttpServerCore
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly int _port;
+        private readonly ProcessingMode _mode;
 
         public HttpServer(
             int port,
             ILoggerFactory loggerFactory,
-            IHandler handler)
+            IHandler handler,
+            ProcessingMode mode)
         {
             _port = port;
             _tcpListener = new TcpListener(IPAddress.Any, port);
             _logger = loggerFactory.CreateLogger<HttpServer>();
             _loggerFactory = loggerFactory;
             _handler = handler;
+            _mode = mode;
         }
 
         public async Task StartAsync()

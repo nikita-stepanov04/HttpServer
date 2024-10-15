@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpServerCore", "HttpServe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "WebApp\WebApp.csproj", "{9F74DDBF-FE67-4408-BDEF-CE2BD0A60B7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebToolkit", "WebToolkit\WebToolkit.csproj", "{E53BB047-AEA5-4B8E-A8B8-6428106F54C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebToolkit", "WebToolkit\WebToolkit.csproj", "{E53BB047-AEA5-4B8E-A8B8-6428106F54C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatcherToolKit", "DispatcherToolKit\DispatcherToolKit.csproj", "{836AEEDC-FDC7-4B46-A5B3-408ED48D40C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{E53BB047-AEA5-4B8E-A8B8-6428106F54C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E53BB047-AEA5-4B8E-A8B8-6428106F54C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E53BB047-AEA5-4B8E-A8B8-6428106F54C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{836AEEDC-FDC7-4B46-A5B3-408ED48D40C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{836AEEDC-FDC7-4B46-A5B3-408ED48D40C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{836AEEDC-FDC7-4B46-A5B3-408ED48D40C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{836AEEDC-FDC7-4B46-A5B3-408ED48D40C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
