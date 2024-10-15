@@ -9,6 +9,5 @@ namespace WebApp.Models
         public StatusCodes StatusCode { get; set; }
         public string? Headers { get; set; }
         public string? StringContent { get; set; }
-        public byte[]? Content { get; set; }
     }
 }

@@ -3,9 +3,9 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using WebToolkit.Handling;
 using System.Text;
-using WebToolkit;
 using NpgsqlTypes;
 using Serilog.Sinks.PostgreSQL;
+using WebToolkit.Models;
 
 namespace WebApp
 {
@@ -48,7 +48,7 @@ namespace WebApp
             app.MapErrorPath(contentPath + "/errors");
 
             app.MapGet("/test", Endpoints.Test);
-            app.MapGet("/error", (rq, rs) => throw new Exception());
+            app.MapGet("/error", _ => throw new Exception());
             app.MapPost("/fileLength", Endpoints.FileLength);
 
             using HttpServer server = app.Build();
@@ -65,7 +65,7 @@ namespace WebApp
 
     class Middleware1 : IMiddleware
     {
-        public async Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
         {
             Console.WriteLine("Middleware 1");
             await Next();
@@ -75,7 +75,7 @@ namespace WebApp
 
     class Middleware2 : IMiddleware
     {
-        public async Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
         {
             Console.WriteLine("Middleware 2");
             await Next();
@@ -84,32 +84,32 @@ namespace WebApp
 
     static class Endpoints
     {
-        public static async Task Test(HttpRequest request, HttpResponse response)
+        public static async Task Test(HttpContext context)
         {
-            using var sw = new StreamWriter(response.Content, leaveOpen: true);
+            using var sw = new StreamWriter(context.Response.Content, leaveOpen: true);
 
             StringBuilder builder = new("Query params: ");
-            foreach (var param in request.QueryParams)
+            foreach (var param in context.Request.QueryParams)
             {
                 builder.Append($"{param.Key}: {param.Value}, ");
             }
             string result = builder.ToString();
 
-            response.Headers.Set("Content-Type", "text/plain");
+            context.Response.Headers.Set("Content-Type", "text/plain");
             await sw.WriteAsync(result);
             await sw.FlushAsync();
         }
 
-        public static async Task FileLength(HttpRequest request, HttpResponse response)
+        public static async Task FileLength(HttpContext context)
         {
-            if (request.Content != null)
+            if (context.Request.Content != null)
             {
-                long count = request.Content.Length;
-                using var sw = new StreamWriter(response.Content, leaveOpen: true);
+                long count = context.Request.Content.Length;
+                using var sw = new StreamWriter(context.Response.Content, leaveOpen: true);
 
                 string result = $"File length is: {count} bytes";
 
-                response.Headers.Set("Content-Type", "text/plain");
+                context.Response.Headers.Set("Content-Type", "text/plain");
 
                 await sw.WriteLineAsync(result);
                 await sw.FlushAsync();

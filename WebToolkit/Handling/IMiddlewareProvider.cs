@@ -1,5 +1,4 @@
 ﻿using HttpServerCore;
-using Microsoft.Extensions.Logging;
 
 namespace WebToolkit.Handling
 {

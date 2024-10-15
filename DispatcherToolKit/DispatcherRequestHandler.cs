@@ -1,5 +1,6 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
+using WebToolkit.Models;
 
 namespace DispatcherToolKit
 {
@@ -8,12 +9,12 @@ namespace DispatcherToolKit
         private readonly ILogger _logger;
         private readonly ServersRepository _servers;
 
-        public Task GetAddress(HttpRequest request, HttpResponse response)
+        public Task GetAddress(HttpContext context)
         {
             throw new NotImplementedException();
         }
 
-        public Task AddAddress(HttpRequest request, HttpResponse response)
+        public Task AddAddress(HttpContext context)
         {
             throw new NotImplementedException();
         }

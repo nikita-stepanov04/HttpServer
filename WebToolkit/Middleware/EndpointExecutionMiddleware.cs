@@ -1,6 +1,7 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
 using WebToolkit.Handling;
+using WebToolkit.Models;
 
 namespace WebToolkit.Middleware
 {
@@ -15,8 +16,11 @@ namespace WebToolkit.Middleware
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
         {
+            var request = context.Request;
+            var response = context.Response;
+
             string path = request.Uri;
 
             RequestDelegate? endpoint = _endpointProvider.GetStaticEndpoint(path)
@@ -37,7 +41,7 @@ namespace WebToolkit.Middleware
                 try
                 {
                     _logger.LogInformation("Endpoint for {p1} {p2} was found, executing", request.Method, path);
-                    await endpoint.Invoke(request, response);
+                    await endpoint.Invoke(context);
                     response.StatusCode = StatusCodes.OK;
 
                     _logger.LogInformation("Endpoint was executed successfully");

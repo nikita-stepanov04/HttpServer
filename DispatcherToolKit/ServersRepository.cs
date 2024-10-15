@@ -8,8 +8,8 @@
 
         public void RemoveServer(int server) => throw new NotImplementedException();
 
-        public void GetServer() => throw new NotImplementedException();
+        public int GetServer() => throw new NotImplementedException();
 
-        public async Task LoadServers() => throw new NotImplementedException();        
+        public async Task LoadServersAsync() => throw new NotImplementedException();        
     }
 }

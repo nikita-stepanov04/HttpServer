@@ -1,9 +1,9 @@
-﻿using HttpServerCore;
+﻿using WebToolkit.Models;
 
 namespace WebToolkit.Handling
 {
     public interface IMiddleware
     {
-        Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next);
+        Task InvokeAsync(HttpContext context, Func<Task> Next);
     }
 }

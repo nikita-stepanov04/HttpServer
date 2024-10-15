@@ -1,6 +1,7 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
 using WebToolkit.Handling;
+using WebToolkit.Models;
 
 namespace WebToolkit.Middleware
 {
@@ -15,8 +16,10 @@ namespace WebToolkit.Middleware
             _endpointProvider = endpointProvider;
         }
 
-        public async Task InvokeAsync(HttpRequest request, HttpResponse response, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
         {
+            var response = context.Response;
+
             if ((int)response.StatusCode >= 400)
             {
                 response.Content.SetLength(0);
@@ -35,7 +38,7 @@ namespace WebToolkit.Middleware
 
                 _logger.LogInformation("Error endpoint was found successfully");
 
-                await errorEndpoint.Invoke(request, response);
+                await errorEndpoint.Invoke(context);
                 response.StatusCode = StatusCodes.OK;
 
                 _logger.LogInformation("Successfully executed error endpoint");

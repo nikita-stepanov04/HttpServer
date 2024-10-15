@@ -1,4 +1,4 @@
-﻿using HttpServerCore;
+﻿using WebToolkit.Models;
 
 namespace WebToolkit.Handling
 {
@@ -21,5 +21,5 @@ namespace WebToolkit.Handling
         public RequestDelegate? GetPostEndpoint(string path);
     }
 
-    public delegate Task RequestDelegate(HttpRequest request, HttpResponse response);
+    public delegate Task RequestDelegate(HttpContext context);
 }

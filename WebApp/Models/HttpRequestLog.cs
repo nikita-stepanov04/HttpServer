@@ -9,6 +9,5 @@
         public string? QueryParams { get; set; }
         public string? Headers { get; set; }
         public string? StringContent { get; set; }
-        public byte[]? Content { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using WebToolkit.Handling;
 using WebToolkit.Middleware;
 
-namespace WebToolkit
+namespace WebToolkit.Models
 {
     public class HttpServerBuilder
     {

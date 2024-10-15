@@ -38,7 +38,7 @@ namespace WebToolkit.Handling
             string fullPath = $"{basePath}/{path}";
             if (File.Exists(fullPath))
             {
-                RequestDelegate endpoint = async (request, response) =>
+                RequestDelegate endpoint = async (context) =>
                 {
                     using (FileStream fs = new(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
@@ -52,13 +52,13 @@ namespace WebToolkit.Handling
                             while ((bytesRead = await fs.ReadAsync(buffer, 0, bufferSize)) > 0)
                             {
                                 contentLength += bytesRead;
-                                await response.Content.WriteAsync(buffer, 0, bytesRead);
+                                await context.Response.Content.WriteAsync(buffer, 0, bytesRead);
                             }
 
                             string fileExtension = path.Split(".").Last();
-                            response.Headers.Set("Content-Type", ContentTypes.Parse(fileExtension));
-                            response.Headers.Set("Content-Length", contentLength.ToString());
-                            response.Content.Position = 0;
+                            context.Response.Headers.Set("Content-Type", ContentTypes.Parse(fileExtension));
+                            context.Response.Headers.Set("Content-Length", contentLength.ToString());
+                            context.Response.Content.Position = 0;
                         }
                         finally
                         {

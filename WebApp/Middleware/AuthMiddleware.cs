@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using WebApp.Models;
 using WebToolkit.Handling;
 using WebToolkit.Models;
 
 namespace WebApp.Middleware
 {
-    public class LoggingMiddleware : IMiddleware
+    public class AuthMiddleware : IMiddleware
     {
-        private readonly ILogger _logger;
+        private readonly UserStore _userStore;
 
         public Task InvokeAsync(HttpContext context, Func<Task> Next)
         {

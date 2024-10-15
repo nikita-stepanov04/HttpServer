@@ -11,22 +11,22 @@ namespace WebApp.Repositories
         //    throw new NotImplementedException();
         //}
 
-        public async Task<User> GetByIdAsync(Guid id)
+        public async Task<AppUser> GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<User> AddAsync(User user)
+        public async Task AddAsync(AppUser user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> DeleteAsync(User user)
+        public async Task<bool> DeleteAsync(AppUser user)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> UpdateAsync(User user)
+        public async Task<bool> UpdateAsync(AppUser user)
         {
             throw new NotImplementedException();
         }
