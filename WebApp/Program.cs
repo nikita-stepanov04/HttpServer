@@ -37,7 +37,7 @@ namespace WebApp
                     needAutoCreateTable: true)
                 .CreateLogger();
 
-            HttpServerBuilder app = new(8080, new SerilogLoggerFactory(), ProcessingMode.MultiThread);            
+            HttpServerBuilder app = new(8080, new SerilogLoggerFactory(), ProcessingMode.SingleThread);            
 
             app.Use<Middleware1>();
             app.Use<Middleware2>();

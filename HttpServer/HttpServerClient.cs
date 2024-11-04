@@ -6,32 +6,38 @@ using System.Text;
 
 namespace HttpServerCore
 {
-    internal class HttpServerClient : IDisposable
+    public class HttpServerClient : IDisposable
     {
         private readonly TcpClient _client;
         private readonly NetworkStream _stream;
         private readonly Action<HttpServerClient> _disposeCallback;
+        private readonly Func<Task>? _resultCallback;
         private readonly IHandler _handler;
         private readonly Task _clientTask;
         private readonly string _remoteEndpoint;
         private readonly ILogger _logger;
+        private readonly bool _isConnectionKeepAliveDisabled;
 
         public HttpServerClient(
             TcpClient client,
             ILogger logger,
             IHandler handler,
+            bool isConnectionKeepAliveDisabled,
+            Func<Task>? resultCallback,
             Action<HttpServerClient> disposeCallback)
         {
             _client = client;
             _stream = client.GetStream();
+            _resultCallback = resultCallback;
             _disposeCallback = disposeCallback;
             _logger = logger;
             _remoteEndpoint = _client.Client.RemoteEndPoint?.ToString() ?? "";
             _handler = handler;
+            _isConnectionKeepAliveDisabled = isConnectionKeepAliveDisabled;
             _clientTask = RunTcpReadingLoop();
         }
 
-        private async Task RunTcpReadingLoop()
+        async Task RunTcpReadingLoop()
         {            
             try
             {
@@ -63,7 +69,7 @@ namespace HttpServerCore
 
                         await SendHttpResponse(response);
 
-                        if (response.Headers.Get("Connection") == "close")                        
+                        if (_isConnectionKeepAliveDisabled || response.Headers.Get("Connection") == "close")                        
                             break;                        
                     }
                 }
@@ -85,7 +91,12 @@ namespace HttpServerCore
             {
                 _stream.Close();
                 if (!disposed)
+                {
                     _disposeCallback(this);
+
+                    if (_resultCallback != null)
+                        await _resultCallback();
+                }
             }
         }
 

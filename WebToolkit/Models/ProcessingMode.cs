@@ -1,4 +1,4 @@
-﻿namespace HttpServerCore
+﻿namespace WebToolkit.Models
 {
     public enum ProcessingMode
     {

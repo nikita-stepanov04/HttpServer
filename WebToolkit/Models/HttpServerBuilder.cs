@@ -43,7 +43,15 @@ namespace WebToolkit.Models
 
         public HttpServer Build()
         {
-            return new(_port, _loggerFactory, _middleware, _mode);
+            IServerState state = _mode switch
+            {
+                ProcessingMode.SingleThread => new SingleThreadedState(),
+                ProcessingMode.MultiThread => new MultiThreadedState(),
+                _ => throw new Exception("Selected server mode is not supported")
+            };
+            var context = new HttpServerContext(state);
+
+            return new(_port, _loggerFactory, _middleware, context);
         }
     }
 }

@@ -8,24 +8,24 @@ namespace HttpServerCore
     {
         private readonly TcpListener _tcpListener;
         private readonly List<HttpServerClient> _httpServerClients = new();
+        private readonly HttpServerContext _context;
         private readonly IHandler _handler;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly int _port;
-        private readonly ProcessingMode _mode;
 
         public HttpServer(
             int port,
             ILoggerFactory loggerFactory,
             IHandler handler,
-            ProcessingMode mode)
+            HttpServerContext context)
         {
             _port = port;
             _tcpListener = new TcpListener(IPAddress.Any, port);
             _logger = loggerFactory.CreateLogger<HttpServer>();
             _loggerFactory = loggerFactory;
             _handler = handler;
-            _mode = mode;
+            _context = context;
         }
 
         public async Task StartAsync()
@@ -34,36 +34,7 @@ namespace HttpServerCore
             {
                 try
                 {
-                    _tcpListener.Start();
-                    _logger.LogInformation("Server started with address: {p}", _tcpListener.LocalEndpoint);
-
-                    ILogger clientLogger = _loggerFactory.CreateLogger<HttpServerClient>();
-
-                    while (true)
-                    {
-                        TcpClient client = await _tcpListener.AcceptTcpClientAsync();
-
-                        Guid connectionId = Guid.NewGuid();
-                        using (clientLogger.BeginConnectionScope(connectionId))
-                        {
-                            _logger.LogInformation("Connection: {p1} => {p2}", client.Client.RemoteEndPoint, client.Client.LocalEndPoint);
-
-                            lock (_httpServerClients)
-                            {
-                                _httpServerClients.Add(new HttpServerClient(client, clientLogger, _handler,
-                                    disposeCallback: httpClient =>
-                                    {
-                                        lock (_httpServerClients)
-                                        {
-                                            _httpServerClients.Remove(httpClient);
-                                        }
-                                        httpClient.Dispose();
-                                    }
-                                ));
-                            }
-                        }
-
-                    }
+                    await _context.HandleRequestAsync(_tcpListener, _httpServerClients, _handler, _loggerFactory, _logger);
                 }
                 catch (Exception e)
                 {
