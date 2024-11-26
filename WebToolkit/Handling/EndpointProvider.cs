@@ -1,6 +1,5 @@
-﻿using HttpServerCore;
-using System.Buffers;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using WebToolkit.ResponseWriting;
 
 namespace WebToolkit.Handling
 {
@@ -40,31 +39,7 @@ namespace WebToolkit.Handling
             {
                 RequestDelegate endpoint = async (context) =>
                 {
-                    using (FileStream fs = new(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        int bytesRead = 0;
-                        int bufferSize = 65536;
-                        int contentLength = 0;
-                        byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-
-                        try
-                        {
-                            while ((bytesRead = await fs.ReadAsync(buffer, 0, bufferSize)) > 0)
-                            {
-                                contentLength += bytesRead;
-                                await context.Response.Content.WriteAsync(buffer, 0, bytesRead);
-                            }
-
-                            string fileExtension = path.Split(".").Last();
-                            context.Response.Headers.Set("Content-Type", ContentTypes.Parse(fileExtension));
-                            context.Response.Headers.Set("Content-Length", contentLength.ToString());
-                            context.Response.Content.Position = 0;
-                        }
-                        finally
-                        {
-                            ArrayPool<byte>.Shared.Return(buffer);
-                        }
-                    }
+                    await context.Response.HtmlResult(fullPath).ExecuteAsync();
                 };
                 return endpoint;
             }

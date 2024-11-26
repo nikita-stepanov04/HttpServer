@@ -6,6 +6,8 @@ using System.Text;
 using NpgsqlTypes;
 using Serilog.Sinks.PostgreSQL;
 using WebToolkit.Models;
+using WebToolkit.ResponseWriting;
+using WebApp.Models;
 
 namespace WebApp
 {
@@ -13,6 +15,8 @@ namespace WebApp
     {
         static async Task Main(string[] args)
         {
+            #region Configuration
+
             string contentPath = AppContext.BaseDirectory + "wwwroot";
 
             string connectionString = "Host=localhost;Database=HttpServer;Username=postgres;Password=Password123$";
@@ -37,17 +41,25 @@ namespace WebApp
                     needAutoCreateTable: true)
                 .CreateLogger();
 
-            HttpServerBuilder app = new(8080, new SerilogLoggerFactory(), ProcessingMode.SingleThread);            
+            #endregion
 
-            app.Use<Middleware1>();
-            app.Use<Middleware2>();
+            HttpServerBuilder app = new(8080, new SerilogLoggerFactory(), ProcessingMode.MultiThread);
+
+            //app.Use<Middleware1>();
+            //app.Use<Middleware2>();
             app.UseEndpoints();
             app.UseErrorMiddleware();
 
+            app.MapViewsAssemblyType(typeof(Program));
             app.MapStaticPath(contentPath);
             app.MapErrorPath(contentPath + "/errors");
 
             app.MapGet("/test", Endpoints.Test);
+            app.MapGet("/test-html", Endpoints.TestHtml);
+            app.MapGet("/test-json", Endpoints.TestJson);
+            app.MapGet("/test-razor", Endpoints.TestRazor);
+            app.MapGet("/test-status", Endpoints.TestStatus);
+
             app.MapGet("/error", _ => throw new Exception());
             app.MapPost("/fileLength", Endpoints.FileLength);
 
@@ -84,6 +96,8 @@ namespace WebApp
 
     static class Endpoints
     {
+        static string contentPath = AppContext.BaseDirectory + "wwwroot";
+
         public static async Task Test(HttpContext context)
         {
             using var sw = new StreamWriter(context.Response.Content, leaveOpen: true);
@@ -98,6 +112,39 @@ namespace WebApp
             context.Response.Headers.Set("Content-Type", "text/plain");
             await sw.WriteAsync(result);
             await sw.FlushAsync();
+        }
+        
+        public static async Task TestHtml(HttpContext context)
+        {
+            await context.Response
+                .HtmlResult(contentPath + "/index.html")
+                .ExecuteAsync();
+        }
+
+        public static async Task TestJson(HttpContext context)
+        {
+            await context.Response
+                .JsonResult(new { Test1 = "test1", Test2 = "test2" })
+                .ExecuteAsync();
+        }
+
+        public static async Task TestRazor(HttpContext context)
+        {
+            var user = new AppUser
+            {
+                UserId = Guid.NewGuid(),
+                FirstName = "Test user name",
+                SecondName = "Test user second name",
+                Birthdate = DateOnly.Parse("2003/03/15")
+            };
+            await context.Response.RazorResult(user, viewName: "User").ExecuteAsync();
+        }
+
+        public static async Task TestStatus(HttpContext context)
+        {
+            await context.Response
+                .HttpStatusResult(StatusCodes.MethodNotAllowed)
+                .ExecuteAsync();
         }
 
         public static async Task FileLength(HttpContext context)

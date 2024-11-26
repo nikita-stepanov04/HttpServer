@@ -167,8 +167,12 @@ namespace HttpServerCore
         {
             response.Content.Position = 0;
 
-            long contentLength = response.Content.Length;
-            response.Headers.Set("Content-Length", contentLength.ToString());
+            long? contentLength;
+            if ((contentLength = response.Headers.GetDigit("Content-Length")) == null)
+            {
+                contentLength = response.Content.Length;
+                response.Headers.Set("Content-Length", contentLength.Value.ToString());
+            }            
 
             using (StreamWriter sw = new(_stream, leaveOpen: true))
             {                

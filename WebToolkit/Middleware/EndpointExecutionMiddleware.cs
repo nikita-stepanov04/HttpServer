@@ -42,7 +42,6 @@ namespace WebToolkit.Middleware
                 {
                     _logger.LogInformation("Endpoint for {p1} {p2} was found, executing", request.Method, path);
                     await endpoint.Invoke(context);
-                    response.StatusCode = StatusCodes.OK;
 
                     _logger.LogInformation("Endpoint was executed successfully");
                 }

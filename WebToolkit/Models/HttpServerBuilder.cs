@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WebToolkit.Handling;
 using WebToolkit.Middleware;
+using WebToolkit.ResponseWriting;
 
 namespace WebToolkit.Models
 {
@@ -31,6 +32,8 @@ namespace WebToolkit.Models
 
         public void UseErrorMiddleware() => _middleware.Use(
             new ErrorMiddleware(_endpoints, _loggerFactory.CreateLogger<ErrorMiddleware>()));
+
+        public void MapViewsAssemblyType(Type assembly) => RazorHelper.ConfigureEngine(assembly);
 
         public void MapStaticPath(string path) => _endpoints.MapStaticPath(path);
 
