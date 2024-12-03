@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using HttpServerCore.Mediators;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
 
@@ -13,12 +14,14 @@ namespace HttpServerCore
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly int _port;
+        private readonly Mediator _mediator;
 
         public HttpServer(
             int port,
             ILoggerFactory loggerFactory,
             IHandler handler,
-            HttpServerContext context)
+            HttpServerContext context,
+            Mediator mediator)
         {
             _port = port;
             _tcpListener = new TcpListener(IPAddress.Any, port);
@@ -26,6 +29,7 @@ namespace HttpServerCore
             _loggerFactory = loggerFactory;
             _handler = handler;
             _context = context;
+            _mediator = mediator;
         }
 
         public async Task StartAsync()
@@ -34,6 +38,7 @@ namespace HttpServerCore
             {
                 try
                 {
+                    await _mediator.RaiseAsync(new ServerStartedEvent(_port));
                     await _context.HandleRequestAsync(_tcpListener, _httpServerClients, _handler, _loggerFactory, _logger);
                 }
                 catch (Exception e)

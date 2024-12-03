@@ -8,6 +8,7 @@ using Serilog.Sinks.PostgreSQL;
 using WebToolkit.Models;
 using WebToolkit.ResponseWriting;
 using WebApp.Models;
+using WebToolkit.Handlers;
 
 namespace WebApp
 {
@@ -62,6 +63,8 @@ namespace WebApp
 
             app.MapGet("/error", _ => throw new Exception());
             app.MapPost("/fileLength", Endpoints.FileLength);
+
+            app.AddOnServerStartedEventHandler<ServerStartedEventHandler>();
 
             using HttpServer server = app.Build();
             {

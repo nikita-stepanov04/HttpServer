@@ -1,4 +1,5 @@
 ﻿using HttpServerCore;
+using HttpServerCore.Mediators;
 using Microsoft.Extensions.Logging;
 using WebToolkit.Handling;
 using WebToolkit.Middleware;
@@ -13,6 +14,7 @@ namespace WebToolkit.Models
         private readonly IMiddlewareProvider _middleware;
         private readonly IEndpointProvider _endpoints;
         private readonly ProcessingMode _mode;
+        private readonly Mediator _mediator;
 
         public HttpServerBuilder(int port, ILoggerFactory loggerFactory, ProcessingMode mode)
         {
@@ -21,6 +23,7 @@ namespace WebToolkit.Models
             _middleware = new MiddlewareProvider();
             _endpoints = new EndpointProvider();
             _mode = mode;
+            _mediator = new(loggerFactory);
         }
 
         public void Use(IMiddleware middleware) => _middleware.Use(middleware);
@@ -43,6 +46,8 @@ namespace WebToolkit.Models
 
         public void MapPost(string path, RequestDelegate endpoint) => _endpoints.MapPost(path, endpoint);
 
+        public void AddOnServerStartedEventHandler<T>() 
+            where T : IEventHandler<ServerStartedEvent>, new() => _mediator.Register(new T());
 
         public HttpServer Build()
         {
@@ -54,7 +59,7 @@ namespace WebToolkit.Models
             };
             var context = new HttpServerContext(state);
 
-            return new(_port, _loggerFactory, _middleware, context);
+            return new(_port, _loggerFactory, _middleware, context, _mediator);
         }
     }
 }
