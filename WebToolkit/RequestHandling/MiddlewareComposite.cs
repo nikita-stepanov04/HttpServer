@@ -1,21 +1,18 @@
-﻿using HttpServerCore;
-using WebToolkit.Models;
+﻿using WebToolkit.Models;
 
-namespace WebToolkit.Handling
+namespace WebToolkit.RequestHandling
 {
-    public class MiddlewareProvider : IMiddlewareProvider
-    {        
+    public class MiddlewareComposite : IMiddleware
+    {
         private readonly List<IMiddleware> _middleware = new();
 
         public void Use(IMiddleware middleware) => _middleware.Add(middleware);
 
-        public async Task InvokeAsync(HttpRequest request, HttpResponse response)
+        public async Task InvokeAsync(HttpContext context, Func<Task> next)
         {
-            HttpContext context = new(request, response);
-
             int index = 0;
 
-            async Task Next()
+            next = async () =>
             {
                 IMiddleware? middleware = null;
                 lock (_middleware)
@@ -26,9 +23,9 @@ namespace WebToolkit.Handling
                     }
                 }
                 if (middleware != null)
-                    await middleware.InvokeAsync(context, Next);
-            }
-            await Next();
+                    await middleware.InvokeAsync(context, next);
+            };
+            await next();
         }
     }
 }

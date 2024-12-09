@@ -1,6 +1,6 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
-using WebToolkit.Handling;
+using WebToolkit.RequestHandling;
 using WebToolkit.Models;
 
 namespace WebToolkit.Middleware
@@ -16,7 +16,7 @@ namespace WebToolkit.Middleware
             _endpointProvider = endpointProvider;
         }
 
-        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> next)
         {
             var response = context.Response;
 
@@ -44,7 +44,7 @@ namespace WebToolkit.Middleware
                 _logger.LogInformation("Successfully executed error endpoint");
             }
             else
-                await Next();
+                await next();
         }
     }
 }

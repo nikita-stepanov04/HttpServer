@@ -1,5 +1,5 @@
 ﻿using WebApp.Models;
-using WebToolkit.Handling;
+using WebToolkit.RequestHandling;
 using WebToolkit.Models;
 
 namespace WebApp.Middleware
@@ -8,7 +8,7 @@ namespace WebApp.Middleware
     {
         private readonly UserStore _userStore;
 
-        public Task InvokeAsync(HttpContext context, Func<Task> Next)
+        public Task InvokeAsync(HttpContext context, Func<Task> next)
         {
             throw new NotImplementedException();
         }

@@ -1,6 +1,6 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
-using WebToolkit.Handling;
+using WebToolkit.RequestHandling;
 using WebToolkit.Models;
 
 namespace WebToolkit.Middleware
@@ -16,7 +16,7 @@ namespace WebToolkit.Middleware
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> next)
         {
             var request = context.Request;
             var response = context.Response;
@@ -51,7 +51,7 @@ namespace WebToolkit.Middleware
                     response.StatusCode = StatusCodes.InternalServerError;
                 }
             }
-            await Next();
+            await next();
         }
     }
 }

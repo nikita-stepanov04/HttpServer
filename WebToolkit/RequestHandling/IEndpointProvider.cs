@@ -1,6 +1,6 @@
 ﻿using WebToolkit.Models;
 
-namespace WebToolkit.Handling
+namespace WebToolkit.RequestHandling
 {
     public interface IEndpointProvider
     {

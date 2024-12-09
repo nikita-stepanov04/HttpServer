@@ -1,7 +1,7 @@
 ﻿using HttpServerCore;
 using Serilog;
 using Serilog.Extensions.Logging;
-using WebToolkit.Handling;
+using WebToolkit.RequestHandling;
 using System.Text;
 using NpgsqlTypes;
 using Serilog.Sinks.PostgreSQL;
@@ -46,8 +46,8 @@ namespace WebApp
 
             HttpServerBuilder app = new(8080, new SerilogLoggerFactory(), ProcessingMode.MultiThread);
 
-            //app.Use<Middleware1>();
-            //app.Use<Middleware2>();
+            app.Use<Middleware1>();
+            app.Use<Middleware2>();
             app.UseEndpoints();
             app.UseErrorMiddleware();
 
@@ -80,20 +80,20 @@ namespace WebApp
 
     class Middleware1 : IMiddleware
     {
-        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> next)
         {
             Console.WriteLine("Middleware 1");
-            await Next();
+            await next();
             Console.WriteLine("After all");
         }
     }
 
     class Middleware2 : IMiddleware
     {
-        public async Task InvokeAsync(HttpContext context, Func<Task> Next)
+        public async Task InvokeAsync(HttpContext context, Func<Task> next)
         {
             Console.WriteLine("Middleware 2");
-            await Next();
+            await next();
         }
     }
 

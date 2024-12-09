@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using WebToolkit.ResponseWriting;
 
-namespace WebToolkit.Handling
+namespace WebToolkit.RequestHandling
 {
     public class EndpointProvider : IEndpointProvider
     {
