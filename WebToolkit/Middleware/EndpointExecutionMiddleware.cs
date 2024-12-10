@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using WebToolkit.RequestHandling;
 using WebToolkit.Models;
+using System.Diagnostics;
 
 namespace WebToolkit.Middleware
 {
@@ -41,9 +42,16 @@ namespace WebToolkit.Middleware
                 try
                 {
                     _logger.LogInformation("Endpoint for {p1} {p2} was found, executing", request.Method, path);
+
+                    var timer = new Stopwatch();
+                    timer.Start();
+
                     await endpoint.Invoke(context);
 
-                    _logger.LogInformation("Endpoint was executed successfully");
+                    timer.Stop();
+
+                    _logger.LogInformation("Endpoint for {p1} {p2} was executed successfully for {t} ms",
+                        request.Method, path, timer.ElapsedMilliseconds);
                 }
                 catch (Exception e)
                 {

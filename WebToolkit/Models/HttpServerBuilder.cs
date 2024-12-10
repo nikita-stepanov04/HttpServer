@@ -48,6 +48,9 @@ namespace WebToolkit.Models
 
         public void AddOnServerStartedEventHandler<T>() 
             where T : IEventHandler<ServerStartedEvent>, new() => _mediator.Register(new T());
+        
+        public void AddOnServerStoppedEventHandler<T>() 
+            where T : IEventHandler<ServerStoppedEvent>, new() => _mediator.Register(new T());
 
         public HttpServer Build()
         {

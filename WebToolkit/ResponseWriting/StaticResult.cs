@@ -4,13 +4,13 @@ using System.IO;
 
 namespace WebToolkit.ResponseWriting
 {
-    public class HtmlResult : IEndpointResult
+    public class StaticResult : IEndpointResult
     {
         private readonly HttpResponse _httpResponse;
         private readonly string _filePath;
         private readonly int _bufferSize = 65536;
 
-        public HtmlResult(HttpResponse response, string filePath)
+        public StaticResult(HttpResponse response, string filePath)
         {
             _httpResponse = response;
             _filePath = filePath;
@@ -32,10 +32,13 @@ namespace WebToolkit.ResponseWriting
                         await _httpResponse.Content.WriteAsync(buffer, 0, bytesRead);
                     }
 
+                    _httpResponse.StatusCode = StatusCodes.OK;
+
                     string fileExtension = _filePath.Split(".").Last();
                     _httpResponse.Headers.Set("Content-Type", ContentTypes.Parse(fileExtension));
                     _httpResponse.Headers.Set("Content-Length", contentLength.ToString());
-                    _httpResponse.StatusCode = StatusCodes.OK;
+                    _httpResponse.Headers.Set("Cache-Control", "public,max-age=3600");
+                    _httpResponse.Headers.Set("Expires", DateTime.UtcNow.AddHours(1).ToString("R"));
 
                     await _httpResponse.Content.FlushAsync();
                     _httpResponse.Content.Position = 0;

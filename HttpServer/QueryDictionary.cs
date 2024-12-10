@@ -19,6 +19,12 @@ namespace HttpServerCore
             return Convert.ToInt64(value);
         }
 
+        public bool? GetBool(string param)
+        {
+            TryGetValue(param, out string? value);
+            return Convert.ToBoolean(value);
+        }
+
         public DateTime? GetDateTime(string param)
         {
             TryGetValue(param, out string? value);

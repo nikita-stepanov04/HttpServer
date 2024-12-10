@@ -1,15 +1,27 @@
 ﻿namespace DispatcherToolKit
 {
-    public class ServersRepository
+    public static class ServersRepository
     {
-        private readonly List<int> _servers = new();
+        private static Random _random = new Random();
 
-        public void AddServer(int server) => throw new NotImplementedException();
+        private static readonly List<int> _servers = new();
 
-        public void RemoveServer(int server) => throw new NotImplementedException();
+        public static void AddServer(int server) => _servers.Add(server);
 
-        public int GetServer() => throw new NotImplementedException();
+        public static void RemoveServer(int server) => _servers.Remove(server);
 
-        public async Task LoadServersAsync() => throw new NotImplementedException();        
+        public static int? GetServer(int? requesterPort) => _servers
+            .Where(port => port != requesterPort)
+            .GetRandom();
+
+        private static int? GetRandom(this IEnumerable<int> servers)
+        {
+            var serversList = servers.ToList();
+
+            if (!serversList.Any()) return null;
+
+            var index = _random.Next(serversList.Count);
+            return serversList[index];
+        }
     }
 }

@@ -34,6 +34,12 @@ namespace HttpServerCore
 
         public async Task StartAsync()
         {
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                e.Cancel = true;
+                Stop();
+            };
+
             using (_logger.BeginServerScope(_port))
             {
                 try
@@ -66,6 +72,8 @@ namespace HttpServerCore
         public virtual void Dispose(bool disposing)
         {
             if (disposed) throw new ObjectDisposedException(nameof(HttpServer));
+
+            _mediator.RaiseAsync(new ServerStoppedEvent()).Wait();
 
             disposed = true;
             _tcpListener.Stop();
