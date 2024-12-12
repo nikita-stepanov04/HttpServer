@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 using static HttpServerCore.NetworkHelpers;
+using Timer = System.Timers.Timer;
 
 namespace HttpServerCore
 {
@@ -42,15 +43,15 @@ namespace HttpServerCore
                 while (true)
                 {
                     (HttpRequest request, StatusCodes code) = await ReceiveHttpRequest();
-                    Guid requestId = Guid.NewGuid();
 
+                    Guid requestId = Guid.NewGuid();
                     using (request)
                     using (HttpResponse response = new())
                     using (_logger.BeginRequestScope(requestId))
                     {
                         request.RequestId = requestId;
-                        request.ServerPort = Convert.ToInt32(_client.Client.LocalEndPoint!.ToString()!.Split(":")[1]);
                         response.RequestId = requestId;
+                        request.ServerPort = Convert.ToInt32(_client.Client.LocalEndPoint!.ToString()!.Split(":")[1]);
 
                         response.Protocol = request.Protocol ?? response.Protocol;
                         response.Headers.Set("Connection", request.Headers.Get("Connection") ?? "close");
@@ -102,9 +103,21 @@ namespace HttpServerCore
         private async Task<(HttpRequest, StatusCodes)> ReceiveHttpRequest()
         {
             HttpRequest request = new();
+            Timer? timer = null;
+            if (_isConnectionKeepAliveDisabled)
+            {
+                timer = new Timer(TimeSpan.FromMilliseconds(500));
+                timer.Elapsed += (_, _) => _stream.Close();
+                timer.AutoReset = false;
+                timer.Start();
+            }
 
             // Parsing request line
             string requestLine = await ReadLineFromNetworkAsync(_stream);
+
+            // Stop timer if received bytes
+            timer?.Stop();
+
             string[] lineTokens = requestLine.Split(" ");
 
             if (lineTokens.Length != 3)

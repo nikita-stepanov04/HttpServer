@@ -29,7 +29,7 @@ namespace WebApp
             string contentPath = AppContext.BaseDirectory + "wwwroot";
 
             ILoggerFactory loggerFactory = new SerilogLoggerFactory(CommonSettingsConfiguration.Logger);
-            HttpServerBuilder app = new(port, loggerFactory, ProcessingMode.MultiThread);
+            HttpServerBuilder app = new(port, loggerFactory, ProcessingMode.SingleThread);
 
             //app.Use<Middleware1>();
             //app.Use<Middleware2>();

@@ -55,6 +55,11 @@ namespace DispatcherToolKit.Middleware
                 _logger.LogInformation("Forwarding request to server: {p}", forwardPort);
                 client = new HttpServerCore.HttpClient(_loggerFactory);
                 await client.SendAsync(context.Request, context.Response, forwardPort.Value);
+
+                if ((int)context.Response.StatusCode < 400)
+                    _logger.LogInformation("Successfully invoked request forwarding with status code: {s}", context.Response.StatusCode);
+                else
+                    _logger.LogError("Request forwarding invoked with status code: {s}", context.Response.StatusCode);
             }
             else
                 await next();
