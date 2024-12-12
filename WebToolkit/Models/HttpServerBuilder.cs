@@ -38,6 +38,8 @@ namespace WebToolkit.Models
 
         public void MapViewsAssemblyType(Type assembly) => RazorHelper.ConfigureEngine(assembly);
 
+        public void PrecompileViews() => RazorHelper.PrecompileViews().Wait();
+
         public void MapStaticPath(string path) => _endpoints.MapStaticPath(path);
 
         public void MapErrorPath(string path) => _endpoints.MapErrorPath(path);

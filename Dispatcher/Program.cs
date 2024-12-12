@@ -4,7 +4,6 @@ using DispatcherToolKit.Handlers;
 using HttpServerCore;
 using Microsoft.Extensions.Logging;
 using Serilog.Extensions.Logging;
-using System.Text.Json;
 using WebToolkit.Models;
 
 namespace Dispatcher
@@ -13,20 +12,24 @@ namespace Dispatcher
     {
         static void Main(string[] args)
         {
-            int port = Convert.ToInt32(args[0]);
+            int port = 8080;
+            if (args.Length > 0)
+            {
+                port = Convert.ToInt32(args[0]);
+            }
             ILoggerFactory loggerFactory = new SerilogLoggerFactory(CommonSettingsConfiguration.Logger);
 
             DispatcherConnection.DispatcherPort = port;
-            var dispatcher = new HttpServerBuilder(DispatcherConnection.DispatcherPort,
+            var app = new HttpServerBuilder(DispatcherConnection.DispatcherPort,
                 loggerFactory, ProcessingMode.MultiThread);
 
-            dispatcher.UseEndpoints();
+            app.UseEndpoints();
 
-            dispatcher.MapGet("/register", DispatcherEndpoints.RegisterServer);
-            dispatcher.MapGet("/unregister", DispatcherEndpoints.UnregisterServer);
-            dispatcher.MapGet("/get", DispatcherEndpoints.GetAddress);
+            app.MapGet("/register", DispatcherEndpoints.RegisterServer);
+            app.MapGet("/unregister", DispatcherEndpoints.UnregisterServer);
+            app.MapGet("/get", DispatcherEndpoints.GetAddress);
 
-            using HttpServer dispatcherServer = dispatcher.Build();
+            using HttpServer dispatcherServer = app.Build();
 
             dispatcherServer.StartAsync().Wait();
         }

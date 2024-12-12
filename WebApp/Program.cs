@@ -13,10 +13,18 @@ namespace WebApp
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            int port = Convert.ToInt32(args[0]);
-            DispatcherConnection.DispatcherPort = Convert.ToInt32(args[1]);
+            int port = 0;
+            if (args.Length > 0)
+            {
+                port = Convert.ToInt32(args[0]);
+                DispatcherConnection.DispatcherPort = Convert.ToInt32(args[1]);
+            }
+            else
+            {
+                port = 8080;
+            }
 
             string contentPath = AppContext.BaseDirectory + "wwwroot";
 
@@ -30,6 +38,8 @@ namespace WebApp
             app.UseEndpoints();
 
             app.MapViewsAssemblyType(typeof(Program));
+            app.PrecompileViews();
+
             app.MapStaticPath(contentPath);
             app.MapErrorPath(contentPath + "/errors");
 
@@ -46,7 +56,7 @@ namespace WebApp
 
             using HttpServer server = app.Build();
 
-            server.StartAsync().Wait();
+            await server.StartAsync();
         }
     }
 
