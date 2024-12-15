@@ -37,7 +37,7 @@ namespace HttpServerCore
 
             using (StreamWriter sw = new(_stream, leaveOpen: true))
             {
-                sw.WriteLine($"{request.Method} {request.Uri} HTTP/1.1");
+                sw.WriteLine($"{request.Method} {request.Uri}{request.QueryParams.ToString()} HTTP/1.1");
                 foreach (var kvp in request.Headers)
                 {
                     sw.WriteLine($"{kvp.Key}: {kvp.Value}");

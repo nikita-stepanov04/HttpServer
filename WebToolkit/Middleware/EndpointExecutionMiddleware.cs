@@ -35,29 +35,13 @@ namespace WebToolkit.Middleware
             if (endpoint == null)
             {
                 response.StatusCode = StatusCodes.NotFound;
-                _logger.LogError("Endpoint for {p1} {p2} was not found", request.Method, path);
+                throw new EndpointNotFoundException("Endpoint was not found");
             }
             else
             {
-                try
-                {
-                    _logger.LogInformation("Endpoint for {p1} {p2} was found, executing", request.Method, path);
-
-                    var timer = new Stopwatch();
-                    timer.Start();
-
-                    await endpoint.Invoke(context);
-
-                    timer.Stop();
-
-                    _logger.LogInformation("Endpoint for {p1} {p2} was executed successfully for {t} ms",
-                        request.Method, path, timer.ElapsedMilliseconds);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "Failed to execute endpoint due to endpoint exception");                    
-                    response.StatusCode = StatusCodes.InternalServerError;
-                }
+                _logger.LogInformation("Endpoint for {p1} {p2} was found, executing", request.Method, path);
+                await endpoint.Invoke(context);
+                _logger.LogInformation("Endpoint for {p1} {p2} was executed successfully", request.Method, path);
             }
             await next();
         }

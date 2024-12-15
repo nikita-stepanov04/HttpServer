@@ -4,7 +4,7 @@ namespace WebToolkit.ResponseWriting
 {
     public static class EndpointResultFactory
     {
-        public static StaticResult HtmlResult(this HttpResponse response, string filePath)
+        public static StaticResult StaticResult(this HttpResponse response, string filePath)
         {
             return new StaticResult(response, filePath);
         }

@@ -5,7 +5,7 @@ using WebToolkit.Models;
 
 namespace WebToolkit.Middleware
 {
-    internal class ErrorMiddleware : IMiddleware
+    public class ErrorMiddleware : IMiddleware
     {
         private readonly ILogger _logger;
         private readonly IEndpointProvider _endpointProvider;
@@ -18,12 +18,22 @@ namespace WebToolkit.Middleware
 
         public async Task InvokeAsync(HttpContext context, Func<Task> next)
         {
-            var response = context.Response;
-
-            if ((int)response.StatusCode >= 400)
+            try
             {
+                await next();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Request wasn't processed successfully: {e.Message}");
+
+                var response = context.Response;
                 response.Content.SetLength(0);
                 response.Content.Position = 0;
+
+                response.StatusCode = (int)response.StatusCode >= 400 
+                    ? response.StatusCode 
+                    : StatusCodes.InternalServerError;
 
                 _logger.LogInformation("Searching for {p} error endpoint", (int)response.StatusCode);
 
@@ -41,10 +51,8 @@ namespace WebToolkit.Middleware
                 await errorEndpoint.Invoke(context);
                 response.StatusCode = StatusCodes.OK;
 
-                _logger.LogInformation("Successfully executed error endpoint");
-            }
-            else
-                await next();
+                _logger.LogInformation("Successfully executed error endpoint");                
+            }                          
         }
     }
 }

@@ -73,7 +73,7 @@ namespace HttpServerCore
         {
             if (disposed) throw new ObjectDisposedException(nameof(HttpServer));
 
-            _mediator.RaiseAsync(new ServerStoppedEvent()).Wait();
+            _mediator.RaiseAsync(new ServerStoppedEvent(_port)).Wait();
 
             disposed = true;
             _tcpListener.Stop();

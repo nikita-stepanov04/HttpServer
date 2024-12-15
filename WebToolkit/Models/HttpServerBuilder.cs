@@ -40,7 +40,7 @@ namespace WebToolkit.Models
 
         public void PrecompileViews() => RazorHelper.PrecompileViews().Wait();
 
-        public void MapStaticPath(string path) => _endpoints.MapStaticPath(path);
+        public void MapStaticPath(string path) => _endpoints.MapStaticPath(path);        
 
         public void MapErrorPath(string path) => _endpoints.MapErrorPath(path);
 
@@ -64,7 +64,7 @@ namespace WebToolkit.Models
             };
             var context = new HttpServerContext(state);
 
-            var middlewareProvider = new MiddlewareProvider(_middleware);
+            var middlewareProvider = new MiddlewareProvider(_middleware, _loggerFactory);
 
             return new(_port, _loggerFactory, middlewareProvider, context, _mediator);
         }

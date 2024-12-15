@@ -1,5 +1,6 @@
 ﻿using HttpServerCore;
 using RazorLight;
+using System.Dynamic;
 
 namespace WebToolkit.ResponseWriting
 {

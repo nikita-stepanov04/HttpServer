@@ -19,6 +19,7 @@ namespace DispatcherToolKit.Handlers
                 Method = "GET",
                 Uri = "/unregister"
             };
+            await request.WriteJsonAsync(e.Port);
 
             try
             {

@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using static HttpServerCore.NetworkHelpers;
 using Timer = System.Timers.Timer;
@@ -64,7 +67,16 @@ namespace HttpServerCore
                         else
                         {
                             _logger.LogInformation("Request {p} was accepted successfully, invoking request handler", requestId);
+
+                            var timer = new Stopwatch();
+                            timer.Start();
+
                             await _handler.InvokeAsync(request, response);
+
+                            timer.Stop();
+
+                            _logger.LogInformation("Request {p} was processed with status code: {s} for {t} ms", 
+                                requestId, response.StatusCode, timer.ElapsedMilliseconds);
                         }
 
                         await SendHttpResponse(response);

@@ -1,5 +1,5 @@
 ﻿using HttpServerCore;
-using WebApp.Models;
+using Microsoft.Extensions.Logging;
 
 namespace WebToolkit.Models
 {
@@ -7,12 +7,14 @@ namespace WebToolkit.Models
     {
         public HttpRequest Request { get; private set; } = null!;
         public HttpResponse Response { get; private set; } = null!;
-        public bool IsAuthorized { get; set; }
-        public UserRole UserRole { get; set; } = UserRole.None;
-        public User? User { get; set; }
+        public ILoggerFactory LoggerFactory { get; private set; }
 
-        public HttpContext(HttpRequest request, HttpResponse response)
+        public HttpContext(
+            HttpRequest request, 
+            HttpResponse response, 
+            ILoggerFactory loggerFactory)
         {
+            LoggerFactory = loggerFactory;
             Request = request;
             Response = response;
         }

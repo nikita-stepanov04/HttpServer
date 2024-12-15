@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 
 namespace HttpServerCore
 {
@@ -22,7 +23,8 @@ namespace HttpServerCore
         public bool? GetBool(string param)
         {
             TryGetValue(param, out string? value);
-            return Convert.ToBoolean(value);
+            bool.TryParse(value, out bool result);
+            return result;
         }
 
         public DateTime? GetDateTime(string param)
@@ -35,6 +37,24 @@ namespace HttpServerCore
             return DateTime.TryParseExact(value, format,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None, out var dateTime) ? dateTime : null;
+        }
+
+        public override string ToString()
+        {
+            if (Count == 0) return "";
+
+            var builder = new StringBuilder("?", 128);
+
+            int i = 1;
+            foreach(var kvp in this)
+            {
+                builder.Append($"{kvp.Key}={kvp.Value}");
+                if (i != Count)
+                {
+                    builder.Append('&');
+                }
+            }
+            return Uri.EscapeDataString(builder.ToString());
         }
     }
 }

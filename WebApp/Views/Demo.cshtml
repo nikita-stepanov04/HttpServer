@@ -1,0 +1,43 @@
+@using WebToolkit.Models
+@model HttpContext
+
+@{
+    Layout = "Views._Layout";
+    ViewBag.Title = "Razor demo";
+    string forward = Model.Request.QueryParams.GetString("forward") ?? "";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Razor Demo</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <table class="table table-bordered">
+                <tr>
+                    <th class="text-center">Request ID</th>
+                    <td class="text-center">@Model.Request.RequestId</td>
+                </tr>
+                <tr>
+                    <th class="text-center">Server Port</th>
+                    <td class="text-center">@Model.Request.ServerPort</td>
+                </tr>
+            </table>
+
+            <form method="get" action="/test-razor" class="d-flex justify-content-center mt-3">
+                <div class="form-check form-switch me-2">
+                    <input 
+                        class="form-check-input" 
+                        type="checkbox"
+                        id="forwardCheck"
+                        name="forward"
+                        value="true"
+                        @(forward == "true" || forward == "invoked" ? "checked='checked'": "")
+                    >
+                    <label class="form-check-label" for="forwardCheck">
+                        Forward Request
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Reload</button>
+            </form>
+        </div>
+    </div>
+</div>

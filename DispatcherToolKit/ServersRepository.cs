@@ -1,4 +1,6 @@
-﻿namespace DispatcherToolKit
+﻿using System.Text.Json;
+
+namespace DispatcherToolKit
 {
     public static class ServersRepository
     {

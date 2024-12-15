@@ -39,7 +39,7 @@ namespace WebToolkit.RequestHandling
             {
                 RequestDelegate endpoint = async (context) =>
                 {
-                    await context.Response.HtmlResult(fullPath).ExecuteAsync();
+                    await context.Response.StaticResult(fullPath).ExecuteAsync();
                 };
                 return endpoint;
             }
