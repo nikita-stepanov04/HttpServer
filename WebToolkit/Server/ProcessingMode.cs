@@ -1,4 +1,4 @@
-﻿namespace WebToolkit.Models
+﻿namespace WebToolkit.Server
 {
     public enum ProcessingMode
     {

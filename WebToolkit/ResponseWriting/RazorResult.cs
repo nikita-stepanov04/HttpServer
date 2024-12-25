@@ -1,6 +1,6 @@
 ﻿using HttpServerCore;
+using HttpServerCore.Request;
 using RazorLight;
-using System.Dynamic;
 
 namespace WebToolkit.ResponseWriting
 {
@@ -32,13 +32,13 @@ namespace WebToolkit.ResponseWriting
                 template = cacheResult.Template.TemplatePageFactory();
 
             await _engine.RenderTemplateAsync(template, _viewModel, sw);
-            
+
             await sw.FlushAsync();
             content.Position = 0;
 
             _httpResponse.Headers.Set("Content-Type", "text/html");
             _httpResponse.Headers.Set("Content-Length", content.Length.ToString());
-            _httpResponse.StatusCode = StatusCodes.OK;            
+            _httpResponse.StatusCode = StatusCodes.OK;
         }
     }
 }

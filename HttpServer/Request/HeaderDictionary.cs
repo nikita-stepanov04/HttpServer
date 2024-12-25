@@ -1,4 +1,4 @@
-﻿namespace HttpServerCore
+﻿namespace HttpServerCore.Request
 {
     public class HeaderDictionary : Dictionary<string, string>
     {
@@ -22,10 +22,10 @@
         {
             bool containsHeader = ContainsKey(header);
 
-            if (containsHeader)            
-                this[header] = value;            
-            else            
-                Add(header, value);            
+            if (containsHeader)
+                this[header] = value;
+            else
+                Add(header, value);
         }
     }
 }

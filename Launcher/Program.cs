@@ -35,8 +35,9 @@ namespace Launcher
                 FileName = webAppPath,
                 Arguments = arguments,
                 UseShellExecute = true,
-                CreateNoWindow = false 
-            }; 
-            Process.Start(processStartInfo); }
+                CreateNoWindow = false
+            };
+            Process.Start(processStartInfo);
         }
+    }
 }

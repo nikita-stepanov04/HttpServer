@@ -19,7 +19,7 @@ namespace HttpServerCore
                 { "ConnectionId", connectionId.ToString() }
             });
         }
-        
+
         public static IDisposable? BeginServerScope(this ILogger logger, int port)
         {
             return logger.BeginScope(new Dictionary<string, string>

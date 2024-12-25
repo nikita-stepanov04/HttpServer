@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
 
-namespace HttpServerCore
+namespace HttpServerCore.Server
 {
     public class HttpServer : IDisposable
     {
@@ -87,7 +87,7 @@ namespace HttpServerCore
                     {
                         client.Dispose();
                     }
-                }                
+                }
                 _logger.LogInformation("Connected clients are stopped");
             }
             _logger.LogInformation("Server stopped successfully");

@@ -1,37 +1,27 @@
-﻿using Configuration;
-using DispatcherToolKit;
-using DispatcherToolKit.Handlers;
-using HttpServerCore;
-using Microsoft.Extensions.Logging;
-using Serilog.Extensions.Logging;
-using WebToolkit.Models;
+﻿using DispatcherToolKit;
+using HttpServerCore.Server;
+using WebToolkit.Server;
+using static Configuration.CommonSettingsConfiguration;
 
 namespace Dispatcher
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             int port = 8080;
             if (args.Length > 0)
             {
                 port = Convert.ToInt32(args[0]);
             }
-            ILoggerFactory loggerFactory = new SerilogLoggerFactory(CommonSettingsConfiguration.Logger);
 
-            DispatcherConnection.DispatcherPort = port;
-            var app = new HttpServerBuilder(DispatcherConnection.DispatcherPort,
-                loggerFactory, ProcessingMode.MultiThread);
+            IHttpServerBuilder app = new HttpServerBuilder(port, SerilogLoggerFactory);
 
             app.UseEndpoints();
-
-            app.MapGet("/register", DispatcherEndpoints.RegisterServer);
-            app.MapGet("/unregister", DispatcherEndpoints.UnregisterServer);
-            app.MapGet("/get", DispatcherEndpoints.GetAddress);
+            app.MapDispatcherEndpoints();
 
             using HttpServer dispatcherServer = app.Build();
-
-            dispatcherServer.StartAsync().Wait();
+            await dispatcherServer.StartAsync();
         }
     }
 }

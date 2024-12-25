@@ -1,6 +1,4 @@
-﻿using WebToolkit.Models;
-
-namespace WebToolkit.RequestHandling
+﻿namespace WebToolkit.RequestHandling
 {
     public interface IMiddleware
     {

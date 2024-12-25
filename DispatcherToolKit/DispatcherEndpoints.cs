@@ -1,5 +1,5 @@
 ﻿using HttpServerCore;
-using WebToolkit.Models;
+using WebToolkit;
 using WebToolkit.ResponseWriting;
 
 namespace DispatcherToolKit
@@ -25,7 +25,7 @@ namespace DispatcherToolKit
             ServersRepository.AddServer(requestPort.Value);
             await context.Response.HttpStatusResult(StatusCodes.NoContent).ExecuteAsync();
         }
-        
+
         public static async Task UnregisterServer(HttpContext context)
         {
             int? requestPort = await context.Request.ReadJsonAsync<int?>();

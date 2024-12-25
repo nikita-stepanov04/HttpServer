@@ -1,8 +1,8 @@
-﻿using HttpServerCore;
-using HttpServerCore.Mediators;
+﻿using HttpServerCore.Mediators;
+using HttpServerCore.Request;
 using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
-using System.Text.Json;
+using HttpClient = HttpServerCore.Server.HttpClient;
 
 namespace DispatcherToolKit.Handlers
 {
@@ -13,7 +13,7 @@ namespace DispatcherToolKit.Handlers
             var logger = loggerFactory.CreateLogger<ServerStartedEvent>();
             logger.LogInformation("Notify dispatcher that the server has started on the port: {p}", e.Port);
 
-            using var client = new HttpServerCore.HttpClient(loggerFactory);
+            using var client = new HttpClient(loggerFactory);
             var request = new HttpRequest()
             {
                 Method = "GET",

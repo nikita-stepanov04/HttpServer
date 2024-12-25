@@ -1,5 +1,5 @@
 ﻿using HttpServerCore;
-using System;
+using HttpServerCore.Request;
 using System.Text.Json;
 
 namespace WebToolkit.ResponseWriting
@@ -9,7 +9,7 @@ namespace WebToolkit.ResponseWriting
         private readonly HttpResponse _httpResponse;
         private readonly T _entity;
 
-        public JsonResult(HttpResponse response, T entity) 
+        public JsonResult(HttpResponse response, T entity)
         {
             _httpResponse = response;
             _entity = entity;

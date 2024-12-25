@@ -1,8 +1,6 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
 using WebToolkit.RequestHandling;
-using WebToolkit.Models;
-using System.Diagnostics;
 
 namespace WebToolkit.Middleware
 {

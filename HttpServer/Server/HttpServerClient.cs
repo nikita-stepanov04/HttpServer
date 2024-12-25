@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using HttpServerCore.Request;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
 using System.Net.Sockets;
-using static HttpServerCore.NetworkHelpers;
+using static HttpServerCore.Server.NetworkHelpers;
 using Timer = System.Timers.Timer;
 
-namespace HttpServerCore
+namespace HttpServerCore.Server
 {
     public class HttpServerClient : IDisposable
     {
@@ -75,7 +74,7 @@ namespace HttpServerCore
 
                             timer.Stop();
 
-                            _logger.LogInformation("Request {p} was processed with status code: {s} for {t} ms", 
+                            _logger.LogInformation("Request {p} was processed with status code: {s} for {t} ms",
                                 requestId, response.StatusCode, timer.ElapsedMilliseconds);
                         }
 
@@ -158,7 +157,7 @@ namespace HttpServerCore
             if (protocolTokens.Length != 2 || protocolTokens[1] != "1.1")
                 return (request, StatusCodes.HttpVersionNotSupported);
             request.Protocol = lineTokens[2];
-            
+
             // Parsing headers
             await ParseHeaders(_stream, request.Headers);
 
@@ -197,7 +196,7 @@ namespace HttpServerCore
             if (contentLength > 0)
                 await response.Content.CopyToAsync(_stream);
         }
-        
+
         public void Dispose()
         {
             Dispose(true);

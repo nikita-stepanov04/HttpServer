@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using HttpServerCore.Request;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
-using static HttpServerCore.NetworkHelpers;
+using static HttpServerCore.Server.NetworkHelpers;
 
-namespace HttpServerCore
+namespace HttpServerCore.Server
 {
     public class HttpClient : IDisposable
     {

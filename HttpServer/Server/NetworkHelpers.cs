@@ -1,9 +1,10 @@
-﻿using System.Buffers;
+﻿using HttpServerCore.Request;
+using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace HttpServerCore
+namespace HttpServerCore.Server
 {
     internal static class NetworkHelpers
     {

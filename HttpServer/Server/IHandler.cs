@@ -1,4 +1,6 @@
-﻿namespace HttpServerCore
+﻿using HttpServerCore.Request;
+
+namespace HttpServerCore.Server
 {
     public interface IHandler
     {

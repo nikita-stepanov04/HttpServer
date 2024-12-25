@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Net.Sockets;
 
-namespace HttpServerCore
+namespace HttpServerCore.Server
 {
     public interface IServerState
     {

@@ -1,7 +1,6 @@
 ﻿using HttpServerCore;
 using Microsoft.Extensions.Logging;
 using WebToolkit.RequestHandling;
-using WebToolkit.Models;
 
 namespace WebToolkit.Middleware
 {
@@ -31,8 +30,8 @@ namespace WebToolkit.Middleware
                 response.Content.SetLength(0);
                 response.Content.Position = 0;
 
-                response.StatusCode = (int)response.StatusCode >= 400 
-                    ? response.StatusCode 
+                response.StatusCode = (int)response.StatusCode >= 400
+                    ? response.StatusCode
                     : StatusCodes.InternalServerError;
 
                 _logger.LogInformation("Searching for {p} error endpoint", (int)response.StatusCode);
@@ -51,8 +50,8 @@ namespace WebToolkit.Middleware
                 await errorEndpoint.Invoke(context);
                 response.StatusCode = StatusCodes.OK;
 
-                _logger.LogInformation("Successfully executed error endpoint");                
-            }                          
+                _logger.LogInformation("Successfully executed error endpoint");
+            }
         }
     }
 }

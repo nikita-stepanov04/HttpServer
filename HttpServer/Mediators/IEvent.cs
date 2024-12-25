@@ -1,4 +1,4 @@
 ﻿namespace HttpServerCore.Mediators
 {
-    public interface IEvent {}
+    public interface IEvent { }
 }

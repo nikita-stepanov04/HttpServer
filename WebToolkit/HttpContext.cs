@@ -1,7 +1,7 @@
-﻿using HttpServerCore;
+﻿using HttpServerCore.Request;
 using Microsoft.Extensions.Logging;
 
-namespace WebToolkit.Models
+namespace WebToolkit
 {
     public class HttpContext
     {
@@ -10,8 +10,8 @@ namespace WebToolkit.Models
         public ILoggerFactory LoggerFactory { get; private set; }
 
         public HttpContext(
-            HttpRequest request, 
-            HttpResponse response, 
+            HttpRequest request,
+            HttpResponse response,
             ILoggerFactory loggerFactory)
         {
             LoggerFactory = loggerFactory;

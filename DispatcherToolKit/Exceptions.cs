@@ -1,4 +1,4 @@
-﻿namespace DispatcherToolKit.Models
+﻿namespace DispatcherToolKit
 {
     public class RequestForwardingException : Exception
     {
@@ -11,7 +11,7 @@
         public DispatcherRequestException(string message) : base(message) { }
         public DispatcherRequestException(string message, Exception inner) : base(message, inner) { }
     }
-    
+
     public class ForwardingServerIsNotAvailableException : Exception
     {
         public ForwardingServerIsNotAvailableException(string message) : base(message) { }

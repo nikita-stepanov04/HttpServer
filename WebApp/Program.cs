@@ -1,10 +1,8 @@
-﻿using Configuration;
+﻿using DispatcherToolKit;
 using DispatcherToolKit.Handlers;
-using DispatcherToolKit.Middleware;
-using HttpServerCore;
-using Microsoft.Extensions.Logging;
-using Serilog.Extensions.Logging;
-using WebToolkit.Models;
+using HttpServerCore.Server;
+using WebToolkit.Server;
+using static Configuration.CommonSettingsConfiguration;
 using static WebApp.Endpoints.Endpoints;
 using static WebApp.WebAppHelper;
 
@@ -24,9 +22,8 @@ namespace WebApp
             {
                 port = 8080;
             }
-
-            ILoggerFactory loggerFactory = new SerilogLoggerFactory(CommonSettingsConfiguration.Logger);
-            HttpServerBuilder app = new(port, loggerFactory, ProcessingMode.MultiThread);
+;
+            IHttpServerBuilder app = new HttpServerBuilder(port, SerilogLoggerFactory);
 
             app.UseErrorMiddleware();
             app.UseRequestForwarding();
@@ -50,7 +47,6 @@ namespace WebApp
             app.AddOnServerStoppedEventHandler<ServerStoppedEventHandler>();
 
             using HttpServer server = app.Build();
-
             await server.StartAsync();
         }
     }

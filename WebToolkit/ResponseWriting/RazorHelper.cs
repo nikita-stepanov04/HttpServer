@@ -32,7 +32,7 @@ namespace WebToolkit.ResponseWriting
             await Task.WhenAll(tasks);
         }
 
-        public static RazorLightEngine Engine => _engine 
+        public static RazorLightEngine Engine => _engine
             ?? throw new NullReferenceException("Engine is not yet configured");
     }
 }

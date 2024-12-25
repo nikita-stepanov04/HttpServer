@@ -1,10 +1,10 @@
 ﻿using DispatcherToolKit.Handlers;
-using DispatcherToolKit.Models;
-using HttpServerCore;
+using HttpServerCore.Request;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using WebToolkit.Models;
+using WebToolkit;
 using WebToolkit.RequestHandling;
+using HttpClient = HttpServerCore.Server.HttpClient;
 
 namespace DispatcherToolKit.Middleware
 {
@@ -16,10 +16,10 @@ namespace DispatcherToolKit.Middleware
             if (forward.HasValue && forward.Value)
             {
                 context.Request.QueryParams["forward"] = "invoked";
-                var client = new HttpServerCore.HttpClient(context.LoggerFactory);
+                var client = new HttpClient(context.LoggerFactory);
 
                 var logger = context.LoggerFactory.CreateLogger<RequestForwardingMiddleware>();
-                
+
                 int serverPort = await RequestDispatcher(context, logger);
                 await ForwardRequest(context, logger, serverPort);
             }
@@ -29,7 +29,7 @@ namespace DispatcherToolKit.Middleware
 
         private static async Task<int> RequestDispatcher(HttpContext context, ILogger logger)
         {
-            var client = new HttpServerCore.HttpClient(context.LoggerFactory);
+            var client = new HttpClient(context.LoggerFactory);
             var request = new HttpRequest()
             {
                 Method = "GET",
@@ -64,7 +64,7 @@ namespace DispatcherToolKit.Middleware
         {
             logger.LogInformation("Forwarding request to server: {p}", forwardPort);
 
-            var client = new HttpServerCore.HttpClient(context.LoggerFactory);
+            var client = new HttpClient(context.LoggerFactory);
             context.Request.ServerPort = forwardPort;
 
             try
@@ -80,14 +80,6 @@ namespace DispatcherToolKit.Middleware
                 logger.LogInformation("Successfully invoked request forwarding with status code: {s}", context.Response.StatusCode);
             else
                 logger.LogError("Request forwarding invoked with status code: {s}", context.Response.StatusCode);
-        }
-    }
-
-    public static class HttpServerBuilderExtensions
-    {
-        public static void UseRequestForwarding(this HttpServerBuilder builder)
-        {
-            builder.Use(new RequestForwardingMiddleware());
         }
     }
 }

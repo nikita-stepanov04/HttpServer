@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace HttpServerCore
+namespace HttpServerCore.Request
 {
     public class QueryDictionary : Dictionary<string, string>
     {
@@ -13,7 +13,7 @@ namespace HttpServerCore
             TryGetValue(param, out string? value);
             return Convert.ToInt32(value);
         }
-        
+
         public long? GetLong(string param)
         {
             TryGetValue(param, out string? value);
@@ -30,7 +30,7 @@ namespace HttpServerCore
         public DateTime? GetDateTime(string param)
         {
             TryGetValue(param, out string? value);
-            if (value == null) 
+            if (value == null)
                 return null;
 
             string format = "yyyy-MM-ddTHH:mm";
@@ -46,7 +46,7 @@ namespace HttpServerCore
             var builder = new StringBuilder("?", 128);
 
             int i = 1;
-            foreach(var kvp in this)
+            foreach (var kvp in this)
             {
                 builder.Append($"{kvp.Key}={kvp.Value}");
                 if (i != Count)

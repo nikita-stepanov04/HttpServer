@@ -1,4 +1,5 @@
 ﻿using HttpServerCore;
+using HttpServerCore.Request;
 
 namespace WebToolkit.ResponseWriting
 {

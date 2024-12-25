@@ -1,13 +1,13 @@
-﻿using HttpServerCore;
-using HttpServerCore.Mediators;
+﻿using HttpServerCore.Mediators;
+using HttpServerCore.Server;
 using Microsoft.Extensions.Logging;
-using WebToolkit.RequestHandling;
 using WebToolkit.Middleware;
+using WebToolkit.RequestHandling;
 using WebToolkit.ResponseWriting;
 
-namespace WebToolkit.Models
+namespace WebToolkit.Server
 {
-    public class HttpServerBuilder
+    public class HttpServerBuilder : IHttpServerBuilder
     {
         private readonly int _port;
         private readonly ILoggerFactory _loggerFactory;
@@ -16,7 +16,8 @@ namespace WebToolkit.Models
         private readonly ProcessingMode _mode;
         private readonly Mediator _mediator;
 
-        public HttpServerBuilder(int port, ILoggerFactory loggerFactory, ProcessingMode mode)
+        public HttpServerBuilder(int port, ILoggerFactory loggerFactory,
+            ProcessingMode mode = ProcessingMode.MultiThread)
         {
             _port = port;
             _loggerFactory = loggerFactory;
@@ -30,8 +31,8 @@ namespace WebToolkit.Models
 
         public void Use<T>() where T : IMiddleware, new() => _middleware.Use(new T());
 
-        public void UseEndpoints() => _middleware.Use(
-            new EndpointExecutionMiddleware(_endpoints, _loggerFactory.CreateLogger<EndpointExecutionMiddleware>()));
+        public void UseEndpoints() => _middleware.Use(new EndpointExecutionMiddleware(_endpoints,
+                _loggerFactory.CreateLogger<EndpointExecutionMiddleware>()));
 
         public void UseErrorMiddleware() => _middleware.Use(
             new ErrorMiddleware(_endpoints, _loggerFactory.CreateLogger<ErrorMiddleware>()));
@@ -40,7 +41,7 @@ namespace WebToolkit.Models
 
         public void PrecompileViews() => RazorHelper.PrecompileViews().Wait();
 
-        public void MapStaticPath(string path) => _endpoints.MapStaticPath(path);        
+        public void MapStaticPath(string path) => _endpoints.MapStaticPath(path);
 
         public void MapErrorPath(string path) => _endpoints.MapErrorPath(path);
 
@@ -48,10 +49,10 @@ namespace WebToolkit.Models
 
         public void MapPost(string path, RequestDelegate endpoint) => _endpoints.MapPost(path, endpoint);
 
-        public void AddOnServerStartedEventHandler<T>() 
+        public void AddOnServerStartedEventHandler<T>()
             where T : IEventHandler<ServerStartedEvent>, new() => _mediator.Register(new T());
-        
-        public void AddOnServerStoppedEventHandler<T>() 
+
+        public void AddOnServerStoppedEventHandler<T>()
             where T : IEventHandler<ServerStoppedEvent>, new() => _mediator.Register(new T());
 
         public HttpServer Build()

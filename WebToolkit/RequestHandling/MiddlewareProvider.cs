@@ -1,6 +1,6 @@
-﻿using HttpServerCore;
+﻿using HttpServerCore.Request;
+using HttpServerCore.Server;
 using Microsoft.Extensions.Logging;
-using WebToolkit.Models;
 
 namespace WebToolkit.RequestHandling
 {
@@ -19,7 +19,7 @@ namespace WebToolkit.RequestHandling
         {
             var context = new HttpContext(request, response, _loggerFactory);
 
-            await _middleware.InvokeAsync(context, () => Task.CompletedTask);            
+            await _middleware.InvokeAsync(context, () => Task.CompletedTask);
         }
     }
 }

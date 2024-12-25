@@ -1,6 +1,6 @@
 ﻿namespace HttpServerCore.Mediators
 {
-    public class ServerStoppedEvent : IEvent 
+    public class ServerStoppedEvent : IEvent
     {
         public int Port { get; set; }
 

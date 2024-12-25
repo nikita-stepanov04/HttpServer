@@ -1,6 +1,6 @@
 ﻿using HttpServerCore;
+using HttpServerCore.Request;
 using System.Buffers;
-using System.IO;
 
 namespace WebToolkit.ResponseWriting
 {
@@ -20,7 +20,7 @@ namespace WebToolkit.ResponseWriting
         {
             using (FileStream fs = new(_filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                int bytesRead = 0;                
+                int bytesRead = 0;
                 int contentLength = 0;
                 byte[] buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
 

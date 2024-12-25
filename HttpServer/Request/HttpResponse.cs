@@ -1,4 +1,4 @@
-﻿namespace HttpServerCore
+﻿namespace HttpServerCore.Request
 {
     public class HttpResponse : IDisposable
     {
