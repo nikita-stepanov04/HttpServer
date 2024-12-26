@@ -1,4 +1,6 @@
 ﻿using HttpServerCore;
+using System.Reflection.Metadata;
+using System.Text.Json;
 using WebToolkit;
 using WebToolkit.ResponseWriting;
 using static WebApp.WebAppHelper;
@@ -45,5 +47,43 @@ namespace WebApp.Endpoints
                     .ExecuteAsync();
             }
         }
+
+        public static async Task Statistics(HttpContext context)
+        {
+            string statsFilePath = HttpServerCore.Statistics.StatisticsFilePath;
+            Dictionary<string, RequestStatistics>? stats = null;
+            try
+            {
+                string fileContent = await ReadFileWithRetriesAsync(statsFilePath);
+                stats = JsonSerializer.Deserialize<Dictionary<string, RequestStatistics>>(fileContent);
+            }
+            catch {}
+            await context.Response
+                .RazorResult(viewModel: stats, viewName: "Stats")
+                .ExecuteAsync();
+        }
+
+        private static async Task<string> ReadFileWithRetriesAsync(string filePath, int maxRetries = 5, int delayMilliseconds = 100)
+        {
+            int attempt = 0;
+
+            while (true)
+            {
+                try
+                {
+                    return await File.ReadAllTextAsync(filePath);
+                }
+                catch (IOException)
+                {
+                    attempt++;
+                    if (attempt >= maxRetries)
+                    {
+                        throw;
+                    }
+                    await Task.Delay(delayMilliseconds);
+                }
+            }
+        }
+
     }
 }

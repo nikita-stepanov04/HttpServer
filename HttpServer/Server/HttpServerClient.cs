@@ -74,6 +74,8 @@ namespace HttpServerCore.Server
 
                             timer.Stop();
 
+                            Statistics.Log(request, response, timer.ElapsedMilliseconds);
+
                             _logger.LogInformation("Request {p} was processed with status code: {s} for {t} ms",
                                 requestId, response.StatusCode, timer.ElapsedMilliseconds);
                         }

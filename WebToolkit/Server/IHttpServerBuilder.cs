@@ -12,7 +12,7 @@ namespace WebToolkit.Server
 
         public void UseEndpoints();
 
-        public void UseErrorMiddleware();
+        public void UseErrorMiddleware(bool useErrorPages = false);
 
         public void MapViewsAssemblyType(Type assembly);
 

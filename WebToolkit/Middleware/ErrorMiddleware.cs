@@ -8,11 +8,14 @@ namespace WebToolkit.Middleware
     {
         private readonly ILogger _logger;
         private readonly IEndpointProvider _endpointProvider;
+        private readonly bool _useErrorPages;
 
-        public ErrorMiddleware(IEndpointProvider endpointProvider, ILogger logger)
+        public ErrorMiddleware(IEndpointProvider endpointProvider, 
+            ILogger logger, bool useErrorPages = false)
         {
             _logger = logger;
             _endpointProvider = endpointProvider;
+            _useErrorPages = useErrorPages;
         }
 
         public async Task InvokeAsync(HttpContext context, Func<Task> next)
@@ -20,7 +23,6 @@ namespace WebToolkit.Middleware
             try
             {
                 await next();
-
             }
             catch (Exception e)
             {
@@ -34,23 +36,26 @@ namespace WebToolkit.Middleware
                     ? response.StatusCode
                     : StatusCodes.InternalServerError;
 
-                _logger.LogInformation("Searching for {p} error endpoint", (int)response.StatusCode);
-
-                string path = $"{(int)response.StatusCode}.html";
-                RequestDelegate? errorEndpoint = _endpointProvider.GetErrorEndpoint(path);
-
-                if (errorEndpoint == null)
+                if (_useErrorPages)
                 {
-                    _logger.LogError("Failed to find error endpoint");
-                    return;
+                    _logger.LogInformation("Searching for {p} error endpoint", (int)response.StatusCode);
+
+                    string path = $"{(int)response.StatusCode}.html";
+                    RequestDelegate? errorEndpoint = _endpointProvider.GetErrorEndpoint(path);
+
+                    if (errorEndpoint == null)
+                    {
+                        _logger.LogError("Failed to find error endpoint");
+                        return;
+                    }
+
+                    _logger.LogInformation("Error endpoint was found successfully");
+
+                    await errorEndpoint.Invoke(context);
+                    response.StatusCode = StatusCodes.OK;
+
+                    _logger.LogInformation("Successfully executed error endpoint");
                 }
-
-                _logger.LogInformation("Error endpoint was found successfully");
-
-                await errorEndpoint.Invoke(context);
-                response.StatusCode = StatusCodes.OK;
-
-                _logger.LogInformation("Successfully executed error endpoint");
             }
         }
     }

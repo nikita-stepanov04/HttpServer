@@ -34,8 +34,8 @@ namespace WebToolkit.Server
         public void UseEndpoints() => _middleware.Use(new EndpointExecutionMiddleware(_endpoints,
                 _loggerFactory.CreateLogger<EndpointExecutionMiddleware>()));
 
-        public void UseErrorMiddleware() => _middleware.Use(
-            new ErrorMiddleware(_endpoints, _loggerFactory.CreateLogger<ErrorMiddleware>()));
+        public void UseErrorMiddleware(bool useErrorPages = false) => _middleware.Use(
+            new ErrorMiddleware(_endpoints, _loggerFactory.CreateLogger<ErrorMiddleware>(), useErrorPages));
 
         public void MapViewsAssemblyType(Type assembly) => RazorHelper.ConfigureEngine(assembly);
 

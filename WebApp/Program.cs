@@ -12,6 +12,8 @@ namespace WebApp
     {
         static async Task Main(string[] args)
         {
+            #region Args
+
             int port = 0;
             if (args.Length > 0)
             {
@@ -22,7 +24,9 @@ namespace WebApp
             {
                 port = 8080;
             }
-;
+
+            #endregion
+
             IHttpServerBuilder app = new HttpServerBuilder(port, SerilogLoggerFactory);
 
             app.UseErrorMiddleware();
@@ -39,6 +43,7 @@ namespace WebApp
             app.MapGet("/test-json", TestJson);
             app.MapGet("/test-razor", TestRazor);
             app.MapGet("/test-status", TestStatus);
+            app.MapGet("/statistics", Statistics);
 
             app.MapGet("/error", _ => throw new Exception());
             app.MapPost("/fileLength", FileLength);

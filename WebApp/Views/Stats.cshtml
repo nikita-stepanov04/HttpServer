@@ -1,0 +1,46 @@
+@using HttpServerCore
+@model Dictionary<string, RequestStatistics>
+
+@{
+    Layout = "Views._Layout";
+    ViewBag.Title = "Statistics";
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Statistics</h1>
+    @if (Model != null)
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Path</th>
+                    <th scope="col">Total Requests</th>
+                    <th scope="col">Error Requests</th>
+                    <th scope="col">Success Requests</th>
+                    <th scope="col">Average Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var entry in Model)
+                {
+                    <tr class="fw-bold">
+                        <td class="fw-normal">@entry.Key</td>
+                        <td>@entry.Value.TotalRequests</td>
+                        <td class="text-danger">@entry.Value.ErrorRequests</td>
+                        <td class="text-success">@entry.Value.SuccessRequests</td>
+                        <td>
+                            @(((double)entry.Value.TotalTime / entry.Value.TotalRequests).ToString("F2"))
+                            <span class="fw-normal">(ms)</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Failed to load statistics
+        </div>
+    }
+</div>
