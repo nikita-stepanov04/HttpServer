@@ -9,10 +9,7 @@ namespace WebToolkit
         public HttpResponse Response { get; private set; } = null!;
         public ILoggerFactory LoggerFactory { get; private set; }
 
-        public HttpContext(
-            HttpRequest request,
-            HttpResponse response,
-            ILoggerFactory loggerFactory)
+        public HttpContext(HttpRequest request, HttpResponse response, ILoggerFactory loggerFactory)
         {
             LoggerFactory = loggerFactory;
             Request = request;
